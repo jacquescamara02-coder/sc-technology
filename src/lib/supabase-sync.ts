@@ -1,5 +1,9 @@
 import { useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as _supabase } from "@/integrations/supabase/client";
+
+// Untyped client — tables exist in DB but generated types haven't refreshed yet
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase = _supabase as any;
 import {
   useAdminData,
   type AdminProduct,
