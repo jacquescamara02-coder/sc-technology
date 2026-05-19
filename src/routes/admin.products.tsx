@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { Plus, Search, Trash2, CheckCircle2, XCircle, Pencil, Facebook, Star, Sparkles, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ const PAGE_SIZE = 50;
 
 function ProductsPage() {
   const { products, categories, bulkUpdate, bulkDelete, deleteProduct, updateProduct } = useAdminData();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("all");
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
@@ -54,6 +55,10 @@ function ProductsPage() {
     categories.find((c) => c.id === catId)?.subcategories.find((s) => s.id === subId)?.name ?? subId;
 
   const selectedIds = Array.from(selected);
+
+  if (pathname !== "/admin/products") {
+    return <Outlet />;
+  }
 
   return (
     <div className="space-y-5">
