@@ -14,7 +14,266 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_settings: {
+        Row: {
+          data: Json
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          data?: Json
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          data?: Json
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          icon_key: string | null
+          id: string
+          name: string
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          icon_key?: string | null
+          id: string
+          name: string
+          position?: number
+        }
+        Update: {
+          created_at?: string
+          icon_key?: string | null
+          id?: string
+          name?: string
+          position?: number
+        }
+        Relationships: []
+      }
+      facebook_posts: {
+        Row: {
+          caption: string
+          id: string
+          posted_at: string
+          product_id: string
+          product_image: string | null
+          product_name: string
+          status: string
+        }
+        Insert: {
+          caption?: string
+          id: string
+          posted_at?: string
+          product_id: string
+          product_image?: string | null
+          product_name: string
+          status?: string
+        }
+        Update: {
+          caption?: string
+          id?: string
+          posted_at?: string
+          product_id?: string
+          product_image?: string | null
+          product_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      hero_slides: {
+        Row: {
+          active: boolean
+          badge: string | null
+          created_at: string
+          cta: string
+          hue: number | null
+          id: string
+          image: string | null
+          link: string | null
+          position: number
+          subtitle: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          cta?: string
+          hue?: number | null
+          id: string
+          image?: string | null
+          link?: string | null
+          position?: number
+          subtitle?: string
+          title?: string
+        }
+        Update: {
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          cta?: string
+          hue?: number | null
+          id?: string
+          image?: string | null
+          link?: string | null
+          position?: number
+          subtitle?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          delivery: Json
+          id: string
+          items: Json
+          payment: Json
+          status: string
+          subtotal: number
+          total: number
+          tva: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery?: Json
+          id: string
+          items?: Json
+          payment?: Json
+          status?: string
+          subtotal?: number
+          total?: number
+          tva?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery?: Json
+          id?: string
+          items?: Json
+          payment?: Json
+          status?: string
+          subtotal?: number
+          total?: number
+          tva?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          active: boolean
+          badge: string | null
+          brand: string
+          category: string
+          created_at: string
+          description: string
+          facebook_posted_at: string | null
+          facebook_status: string | null
+          featured: boolean
+          id: string
+          images: Json
+          is_new: boolean
+          name: string
+          old_price: number | null
+          popularity: number
+          price: number
+          publish_facebook: boolean
+          sku: string
+          specs: Json
+          stock: number
+          subcategory: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          badge?: string | null
+          brand?: string
+          category: string
+          created_at?: string
+          description?: string
+          facebook_posted_at?: string | null
+          facebook_status?: string | null
+          featured?: boolean
+          id: string
+          images?: Json
+          is_new?: boolean
+          name: string
+          old_price?: number | null
+          popularity?: number
+          price?: number
+          publish_facebook?: boolean
+          sku?: string
+          specs?: Json
+          stock?: number
+          subcategory: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          badge?: string | null
+          brand?: string
+          category?: string
+          created_at?: string
+          description?: string
+          facebook_posted_at?: string | null
+          facebook_status?: string | null
+          featured?: boolean
+          id?: string
+          images?: Json
+          is_new?: boolean
+          name?: string
+          old_price?: number | null
+          popularity?: number
+          price?: number
+          publish_facebook?: boolean
+          sku?: string
+          specs?: Json
+          stock?: number
+          subcategory?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subcategories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+          position: number
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id: string
+          name: string
+          position?: number
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
