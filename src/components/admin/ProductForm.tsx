@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { X, Plus, Upload, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   useAdminData,
   generateProductId,
@@ -81,15 +82,17 @@ export function ProductForm({ initial }: Props) {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!p.name || !p.category || !p.subcategory) {
-      alert("Veuillez remplir tous les champs obligatoires");
+    if (!p.name.trim() || !p.category || !p.subcategory) {
+      toast.error("Veuillez remplir le nom, la catégorie et la sous-catégorie");
       return;
     }
     const isNew = !initial;
     if (initial) {
       updateProduct(p.id, p);
+      toast.success("Produit mis à jour");
     } else {
       addProduct(p);
+      toast.success(`Produit « ${p.name} » ajouté`);
     }
     const auto = useAdminData.getState().settings.facebookAutoPublish;
     if (p.publishFacebook || (isNew && auto)) {

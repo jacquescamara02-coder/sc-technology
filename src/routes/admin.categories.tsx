@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
+import { toast } from "sonner";
 import { useAdminData } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/categories")({
@@ -24,6 +25,28 @@ function CategoriesPage() {
   const [editingSubName, setEditingSubName] = useState("");
   const [newSubByCat, setNewSubByCat] = useState<Record<string, string>>({});
 
+  const handleAddCategory = () => {
+    const name = newCat.trim();
+    if (!name) {
+      toast.error("Veuillez saisir un nom de catégorie");
+      return;
+    }
+    addCategory(name);
+    setNewCat("");
+    toast.success(`Catégorie « ${name} » ajoutée`);
+  };
+
+  const handleAddSubcategory = (catId: string) => {
+    const name = (newSubByCat[catId] ?? "").trim();
+    if (!name) {
+      toast.error("Veuillez saisir un nom de sous-catégorie");
+      return;
+    }
+    addSubcategory(catId, name);
+    setNewSubByCat({ ...newSubByCat, [catId]: "" });
+    toast.success(`Sous-catégorie « ${name} » ajoutée`);
+  };
+
   return (
     <div className="space-y-5 max-w-3xl">
       <div>
@@ -35,17 +58,20 @@ function CategoriesPage() {
         <input
           value={newCat}
           onChange={(e) => setNewCat(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleAddCategory();
+            }
+          }}
           placeholder="Nom de la nouvelle catégorie"
           className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          onClick={() => {
-            if (newCat.trim()) {
-              addCategory(newCat.trim());
-              setNewCat("");
-            }
-          }}
-          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg"
+          type="button"
+          onClick={handleAddCategory}
+          disabled={!newCat.trim()}
+          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
           <Plus className="h-4 w-4" /> Ajouter
         </button>
@@ -152,18 +178,20 @@ function CategoriesPage() {
                   onChange={(e) =>
                     setNewSubByCat({ ...newSubByCat, [c.id]: e.target.value })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddSubcategory(c.id);
+                    }
+                  }}
                   placeholder="Nouvelle sous-catégorie"
                   className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-md"
                 />
                 <button
-                  onClick={() => {
-                    const v = (newSubByCat[c.id] ?? "").trim();
-                    if (v) {
-                      addSubcategory(c.id, v);
-                      setNewSubByCat({ ...newSubByCat, [c.id]: "" });
-                    }
-                  }}
-                  className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 px-2"
+                  type="button"
+                  onClick={() => handleAddSubcategory(c.id)}
+                  disabled={!(newSubByCat[c.id] ?? "").trim()}
+                  className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-3 py-1.5 rounded-md"
                 >
                   <Plus className="h-3.5 w-3.5" /> Ajouter
                 </button>
