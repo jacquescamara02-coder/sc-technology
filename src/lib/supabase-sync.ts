@@ -310,14 +310,14 @@ export function useSupabaseSync() {
 async function refreshProducts() {
   const { data } = await supabase.from("products").select("*");
   if (!data) return;
-  const products = data.map((r) => rowToProduct(r as unknown as ProductRow));
+  const products = (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow));
   useAdminData.setState({ products });
 }
 
 async function refreshOrders() {
   const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
   if (!data) return;
-  const orders: Order[] = data.map((o) => ({
+  const orders: Order[] = (data as any[]).map((o: any) => ({
     id: o.id as string,
     createdAt: new Date(o.created_at as string).getTime(),
     status: o.status as Order["status"],
