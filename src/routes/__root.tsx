@@ -17,6 +17,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { Footer } from "@/components/Footer";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { AmbientBackground } from "@/components/AmbientBackground";
+import { useSupabaseSync } from "@/lib/supabase-sync";
 
 function NotFoundComponent() {
   return (
@@ -91,6 +92,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
+  useSupabaseSync();
 
   useEffect(() => {
     if (typeof document === "undefined") return;
