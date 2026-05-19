@@ -197,18 +197,18 @@ export function useSupabaseSync() {
           // skip re-loading; current state already matches what we just seeded
         } else {
           // categories + subcategories
-          const cats: AdminCategory[] = (catRes.data ?? []).map((c) => ({
+          const cats: AdminCategory[] = (catRes.data ?? []).map((c: any) => ({
             id: c.id as string,
             name: c.name as string,
             iconKey: (c.icon_key as string | null) ?? undefined,
             subcategories: (subRes.data ?? [])
-              .filter((s) => s.category_id === c.id)
-              .map((s) => ({ id: (s.id as string).split("__").slice(1).join("__") || (s.id as string), name: s.name as string })),
+              .filter((s: any) => s.category_id === c.id)
+              .map((s: any) => ({ id: (s.id as string).split("__").slice(1).join("__") || (s.id as string), name: s.name as string })),
           }));
-          const products: AdminProduct[] = (prodRes.data ?? []).map((r) =>
+          const products: AdminProduct[] = (prodRes.data ?? []).map((r: any) =>
             rowToProduct(r as unknown as ProductRow),
           );
-          const heroSlides: HeroSlide[] = (heroRes.data ?? []).map((h) => ({
+          const heroSlides: HeroSlide[] = (heroRes.data ?? []).map((h: any) => ({
             id: h.id as string,
             title: (h.title as string) ?? "",
             subtitle: (h.subtitle as string) ?? "",
@@ -226,7 +226,7 @@ export function useSupabaseSync() {
             ...remoteData,
             heroSlides,
           };
-          const facebookPosts: FacebookPost[] = (fbRes.data ?? []).map((p) => ({
+          const facebookPosts: FacebookPost[] = (fbRes.data ?? []).map((p: any) => ({
             id: p.id as string,
             productId: p.product_id as string,
             productName: p.product_name as string,
@@ -245,7 +245,7 @@ export function useSupabaseSync() {
         }
 
         // orders
-        const orders: Order[] = (ordersRes.data ?? []).map((o) => ({
+        const orders: Order[] = (ordersRes.data ?? []).map((o: any) => ({
           id: o.id as string,
           createdAt: new Date(o.created_at as string).getTime(),
           status: o.status as Order["status"],
@@ -257,6 +257,7 @@ export function useSupabaseSync() {
           payment: o.payment as Order["payment"],
         }));
         useOrders.setState({ orders });
+
 
         // snapshot AFTER applying remote so first diff doesn't echo back
         prevAdminRef.current = useAdminData.getState();
