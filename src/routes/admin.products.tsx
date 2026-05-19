@@ -20,10 +20,6 @@ function ProductsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
 
-  if (pathname !== "/admin/products") {
-    return <Outlet />;
-  }
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
@@ -59,6 +55,10 @@ function ProductsPage() {
     categories.find((c) => c.id === catId)?.subcategories.find((s) => s.id === subId)?.name ?? subId;
 
   const selectedIds = Array.from(selected);
+
+  if (pathname !== "/admin/products") {
+    return <Outlet />;
+  }
 
   return (
     <div className="space-y-5">
