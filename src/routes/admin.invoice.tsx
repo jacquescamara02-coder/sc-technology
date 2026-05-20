@@ -34,11 +34,12 @@ function ManualInvoicePage() {
   const [items, setItems] = useState<LineItem[]>([
     { id: crypto.randomUUID(), name: "", qty: 1, price: 0 },
   ]);
-  const [tvaRate, setTvaRate] = useState(Math.round((settings.vatRate ?? 0.18) * 100));
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [tva, setTva] = useState(0);
 
   const subtotal = items.reduce((a, i) => a + i.qty * i.price, 0);
-  const tva = Math.round((subtotal * tvaRate) / 100);
-  const total = subtotal + tva;
+  const total = subtotal + deliveryFee + tva;
+  void settings;
 
   const productOptions = useMemo(
     () => products.filter((p) => p.active),
@@ -78,6 +79,7 @@ function ManualInvoicePage() {
       price: i.price,
     })),
     subtotal,
+    deliveryFee,
     tva,
     total,
     delivery: {
