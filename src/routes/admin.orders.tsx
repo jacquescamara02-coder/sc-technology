@@ -229,6 +229,7 @@ function OrderDetailModal({
 
           <div className="border-t border-slate-200 pt-3 space-y-1 text-sm">
             <Row label="Sous-total" value={formatGNF(order.subtotal)} />
+            <Row label="Livraison" value={formatGNF(order.deliveryFee ?? 0)} />
             <Row label="TVA" value={formatGNF(order.tva)} />
             <Row label="Total TTC" value={formatGNF(order.total)} bold />
             <Row label="Paiement" value={order.payment.label} />
