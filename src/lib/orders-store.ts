@@ -36,6 +36,7 @@ export interface Order {
   status: OrderStatus;
   items: OrderItem[];
   subtotal: number;
+  deliveryFee: number;
   tva: number;
   total: number;
   delivery: DeliveryInfo;
