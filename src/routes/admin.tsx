@@ -5,7 +5,7 @@ import {
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -18,9 +18,11 @@ import {
   Facebook,
   Images,
   FileText,
+  Bell,
 } from "lucide-react";
 import { Toaster } from "sonner";
-import { useAdminAuth } from "@/lib/admin-store";
+import { useAdminAuth, useAdminData } from "@/lib/admin-store";
+import { useLowStockAlerts, isLowStock, isOutOfStock } from "@/lib/use-low-stock-alerts";
 import logoUrl from "@/assets/sc-logo.png";
 
 export const Route = createFileRoute("/admin")({
