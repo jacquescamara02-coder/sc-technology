@@ -317,17 +317,22 @@ async function refreshProducts() {
 async function refreshOrders() {
   const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
   if (!data) return;
-  const orders: Order[] = (data as any[]).map((o: any) => ({
-    id: o.id as string,
-    createdAt: new Date(o.created_at as string).getTime(),
-    status: o.status as Order["status"],
-    items: (o.items as Order["items"]) ?? [],
-    subtotal: Number(o.subtotal),
-    tva: Number(o.tva),
-    total: Number(o.total),
-    delivery: o.delivery as Order["delivery"],
-    payment: o.payment as Order["payment"],
-  }));
+  const orders: Order[] = (data as any[]).map((o: any) => {
+    const deliveryRaw = (o.delivery ?? {}) as Order["delivery"] & { deliveryFee?: number };
+    const { deliveryFee, ...delivery } = deliveryRaw as any;
+    return {
+      id: o.id as string,
+      createdAt: new Date(o.created_at as string).getTime(),
+      status: o.status as Order["status"],
+      items: (o.items as Order["items"]) ?? [],
+      subtotal: Number(o.subtotal),
+      deliveryFee: deliveryFee != null ? Number(deliveryFee) : 0,
+      tva: Number(o.tva),
+      total: Number(o.total),
+      delivery: delivery as Order["delivery"],
+      payment: o.payment as Order["payment"],
+    };
+  });
   useOrders.setState({ orders });
 }
 
