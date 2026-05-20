@@ -621,9 +621,8 @@ function SummaryContent({
       </ul>
       <div className="space-y-1.5 border-t border-border pt-3 text-sm">
         <Row label="Sous-total" value={formatGNF(subtotal)} />
-        <Row label="Livraison" value="Calculée par notre équipe" muted />
-        <Row label="TVA" value="Selon votre profil" muted />
       </div>
+
       <div className="flex items-center justify-between border-t border-border pt-3">
         <span className="text-sm font-semibold text-foreground">TOTAL</span>
         <span className="text-xl font-bold text-primary">{formatGNF(total)}</span>
