@@ -111,17 +111,13 @@ function CartPage() {
 
       <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
         <Row label="Sous-total" value={formatGNF(subtotal)} />
-        <Row label="Livraison" value={<span className="text-muted-foreground">Calculée par notre équipe</span>} />
-        <Row label="TVA" value={<span className="text-muted-foreground">Selon votre profil</span>} />
         <div className="my-2 border-t border-border" />
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-foreground">TOTAL ARTICLES</span>
           <span className="text-2xl font-bold text-primary">{formatGNF(total)}</span>
         </div>
-        <p className="pt-1 text-[11px] leading-relaxed text-muted-foreground">
-          Les frais de livraison et la TVA seront confirmés par notre équipe après validation de votre commande.
-        </p>
       </div>
+
 
       <Link
         to="/checkout"
