@@ -117,6 +117,7 @@ function PaymentPage() {
         price: i.product.price,
       })),
       subtotal,
+      deliveryFee: 0,
       tva,
       total,
       delivery,
