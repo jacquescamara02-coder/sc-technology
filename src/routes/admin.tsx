@@ -44,7 +44,17 @@ function AdminLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { isAuthed, email, logout } = useAdminAuth();
+  const products = useAdminData((s) => s.products);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+
+  useLowStockAlerts();
+
+  const lowStockItems = useMemo(
+    () => products.filter((p) => isLowStock(p) || isOutOfStock(p)),
+    [products],
+  );
+  const alertCount = lowStockItems.length;
 
   const isLogin = pathname === "/admin/login";
 
