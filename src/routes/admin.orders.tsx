@@ -171,7 +171,7 @@ function OrderDetailModal({
       <h1>SC TECHNOLOGIE</h1><p>Facture <strong>${order.id}</strong> — ${formatDate(order.createdAt)}</p>
       <p><strong>Client:</strong> ${order.delivery.fullName}<br/><strong>Téléphone:</strong> ${order.delivery.phone}<br/><strong>Adresse:</strong> ${order.delivery.address}, ${order.delivery.district}, ${order.delivery.city}</p>
       <table><thead><tr><th>Produit</th><th>Qté</th><th style="text-align:right">PU</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemsHtml}</tbody></table>
-      <p class="tot">Sous-total : ${formatGNF(order.subtotal)}<br/>TVA : ${formatGNF(order.tva)}<br/>Total TTC : ${formatGNF(order.total)}</p>
+      <p class="tot">Sous-total : ${formatGNF(order.subtotal)}<br/>Livraison : ${formatGNF(order.deliveryFee ?? 0)}<br/>TVA : ${formatGNF(order.tva)}<br/>Total TTC : ${formatGNF(order.total)}</p>
       <p>Paiement : ${order.payment.label}</p>
       <script>window.print()</script></body></html>`);
     w.document.close();
