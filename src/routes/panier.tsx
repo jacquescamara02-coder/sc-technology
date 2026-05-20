@@ -68,17 +68,13 @@ function CartPage() {
 
       <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
         <Row label="Sous-total" value={formatGNF(total)} />
-        <Row label="Livraison" value="Calculée par notre équipe" />
-        <Row label="TVA" value="Selon votre profil" />
         <div className="my-1 border-t border-border" />
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-foreground">Total articles</span>
           <span className="text-lg font-bold text-primary">{formatGNF(total)}</span>
         </div>
-        <p className="pt-1 text-[11px] text-muted-foreground">
-          La livraison et la TVA seront ajoutées manuellement par notre équipe.
-        </p>
       </div>
+
 
       <Link
         to="/checkout"

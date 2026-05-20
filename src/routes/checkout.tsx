@@ -336,16 +336,12 @@ function SummaryContent({
       </ul>
       <div className="space-y-1.5 border-t border-border pt-3 text-sm">
         <Row label="Sous-total" value={formatGNF(subtotal)} />
-        <Row label="Livraison" value="Calculée par notre équipe" muted />
-        <Row label="TVA" value="Selon votre profil" muted />
       </div>
       <div className="flex items-center justify-between border-t border-border pt-3">
         <span className="text-sm font-semibold text-foreground">TOTAL ARTICLES</span>
         <span className="text-xl font-bold text-primary">{formatGNF(total)}</span>
       </div>
-      <div className="flex items-center gap-2 rounded-xl bg-success/10 px-3 py-2 text-[11px] text-success">
-        <Check className="h-3.5 w-3.5" /> Frais de livraison et TVA confirmés après validation
-      </div>
+
     </div>
   );
 }
