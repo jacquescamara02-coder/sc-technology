@@ -256,7 +256,7 @@ function CheckoutPage() {
             </button>
             {summaryOpen && (
               <div className="border-t border-border p-4">
-                <SummaryContent items={items} subtotal={subtotal} tva={tva} total={total} />
+                <SummaryContent items={items} subtotal={subtotal} total={total} />
               </div>
             )}
           </section>
@@ -273,7 +273,7 @@ function CheckoutPage() {
         <aside className="hidden lg:block">
           <div className="sticky top-20 space-y-3 rounded-2xl border border-border bg-card p-4">
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Votre commande</h2>
-            <SummaryContent items={items} subtotal={subtotal} tva={tva} total={total} />
+            <SummaryContent items={items} subtotal={subtotal} total={total} />
           </div>
         </aside>
       </div>
