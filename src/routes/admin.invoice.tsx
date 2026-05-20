@@ -34,11 +34,12 @@ function ManualInvoicePage() {
   const [items, setItems] = useState<LineItem[]>([
     { id: crypto.randomUUID(), name: "", qty: 1, price: 0 },
   ]);
-  const [tvaRate, setTvaRate] = useState(Math.round((settings.vatRate ?? 0.18) * 100));
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [tva, setTva] = useState(0);
 
   const subtotal = items.reduce((a, i) => a + i.qty * i.price, 0);
-  const tva = Math.round((subtotal * tvaRate) / 100);
-  const total = subtotal + tva;
+  const total = subtotal + deliveryFee + tva;
+  void settings;
 
   const productOptions = useMemo(
     () => products.filter((p) => p.active),
@@ -78,6 +79,7 @@ function ManualInvoicePage() {
       price: i.price,
     })),
     subtotal,
+    deliveryFee,
     tva,
     total,
     delivery: {
@@ -160,8 +162,9 @@ function ManualInvoicePage() {
       </table>
 
       <div class="totals">
-        <div class="row"><span>Sous-total HT</span><strong>${formatGNF(subtotal)} GNF</strong></div>
-        <div class="row"><span>TVA (${tvaRate}%)</span><strong>${formatGNF(tva)} GNF</strong></div>
+        <div class="row"><span>Sous-total</span><strong>${formatGNF(subtotal)} GNF</strong></div>
+        <div class="row"><span>Livraison</span><strong>${formatGNF(deliveryFee)} GNF</strong></div>
+        <div class="row"><span>TVA</span><strong>${formatGNF(tva)} GNF</strong></div>
         <div class="row grand"><span>Total TTC</span><span>${formatGNF(total)} GNF</span></div>
       </div>
 
@@ -306,20 +309,30 @@ function ManualInvoicePage() {
 
         <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2">
           <h3 className="font-semibold text-slate-900 mb-1">Total</h3>
-          <Row label="Sous-total HT" value={`${formatGNF(subtotal)} GNF`} />
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600">
-              TVA
-              <input
-                type="number" min={0} max={100}
-                value={tvaRate}
-                onChange={(e) => setTvaRate(Math.max(0, Math.min(100, Number(e.target.value))))}
-                className="mx-1 w-12 px-1.5 py-0.5 border border-slate-300 rounded text-xs text-right"
-              />
-              %
-            </span>
-            <span className="font-medium">{formatGNF(tva)} GNF</span>
+          <Row label="Sous-total" value={`${formatGNF(subtotal)} GNF`} />
+          <div className="flex items-center justify-between gap-2 text-sm">
+            <span className="text-slate-600">Livraison (GNF)</span>
+            <input
+              type="number"
+              min={0}
+              value={deliveryFee}
+              onChange={(e) => setDeliveryFee(Math.max(0, Number(e.target.value) || 0))}
+              className="w-32 px-2 py-1 border border-slate-300 rounded text-sm text-right"
+            />
           </div>
+          <div className="flex items-center justify-between gap-2 text-sm">
+            <span className="text-slate-600">TVA (GNF)</span>
+            <input
+              type="number"
+              min={0}
+              value={tva}
+              onChange={(e) => setTva(Math.max(0, Number(e.target.value) || 0))}
+              className="w-32 px-2 py-1 border border-slate-300 rounded text-sm text-right"
+            />
+          </div>
+          <p className="text-[11px] text-slate-500 leading-snug">
+            Livraison et TVA sont saisies manuellement par l'admin selon le client.
+          </p>
           <div className="border-t border-slate-200 pt-2 flex items-center justify-between text-base font-bold">
             <span>Total TTC</span>
             <span className="text-blue-700">{formatGNF(total)} GNF</span>
