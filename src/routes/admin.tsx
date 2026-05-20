@@ -5,7 +5,7 @@ import {
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -18,9 +18,11 @@ import {
   Facebook,
   Images,
   FileText,
+  Bell,
 } from "lucide-react";
 import { Toaster } from "sonner";
-import { useAdminAuth } from "@/lib/admin-store";
+import { useAdminAuth, useAdminData } from "@/lib/admin-store";
+import { useLowStockAlerts, isLowStock, isOutOfStock } from "@/lib/use-low-stock-alerts";
 import logoUrl from "@/assets/sc-logo.png";
 
 export const Route = createFileRoute("/admin")({
@@ -42,7 +44,17 @@ function AdminLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { isAuthed, email, logout } = useAdminAuth();
+  const products = useAdminData((s) => s.products);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+
+  useLowStockAlerts();
+
+  const lowStockItems = useMemo(
+    () => products.filter((p) => isLowStock(p) || isOutOfStock(p)),
+    [products],
+  );
+  const alertCount = lowStockItems.length;
 
   const isLogin = pathname === "/admin/login";
 
@@ -139,6 +151,77 @@ function AdminLayout() {
               SC TECHNOLOGIE — Administration
             </h1>
             <div className="ml-auto flex items-center gap-3">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setAlertsOpen((v) => !v)}
+                  className="relative p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700"
+                  aria-label="Alertes de stock"
+                >
+                  <Bell className="h-4 w-4" />
+                  {alertCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+                      {alertCount > 99 ? "99+" : alertCount}
+                    </span>
+                  )}
+                </button>
+                {alertsOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setAlertsOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <p className="text-sm font-semibold">Alertes de stock</p>
+                        <span className="text-xs text-slate-500">{alertCount} alerte{alertCount > 1 ? "s" : ""}</span>
+                      </div>
+                      {alertCount === 0 ? (
+                        <div className="p-6 text-center text-sm text-slate-500">
+                          Tout est OK 🎉
+                        </div>
+                      ) : (
+                        <ul className="max-h-80 overflow-auto divide-y divide-slate-100">
+                          {lowStockItems.slice(0, 20).map((p) => {
+                            const out = p.stock === 0;
+                            return (
+                              <li key={p.id} className="px-4 py-3 flex items-center gap-3">
+                                <div
+                                  className="h-9 w-9 rounded-lg flex-shrink-0 bg-slate-100"
+                                  style={{ background: p.images[0] }}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-slate-900 truncate">{p.name}</p>
+                                  <p className="text-xs text-slate-500 truncate">{p.brand}</p>
+                                </div>
+                                <span
+                                  className={
+                                    "text-[11px] font-semibold px-2 py-0.5 rounded-full border " +
+                                    (out
+                                      ? "bg-red-50 text-red-700 border-red-200"
+                                      : "bg-orange-50 text-orange-700 border-orange-200")
+                                  }
+                                >
+                                  {out ? "Rupture" : `${p.stock} restant${p.stock > 1 ? "s" : ""}`}
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                      <div className="px-4 py-2 border-t border-slate-100 bg-slate-50">
+                        <Link
+                          to="/admin/products"
+                          onClick={() => setAlertsOpen(false)}
+                          className="text-xs font-medium text-blue-600 hover:underline"
+                        >
+                          Gérer les produits →
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
               <span className="hidden sm:inline text-sm text-slate-600">{email}</span>
               <button
                 onClick={() => {
