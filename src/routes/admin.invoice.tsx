@@ -162,8 +162,9 @@ function ManualInvoicePage() {
       </table>
 
       <div class="totals">
-        <div class="row"><span>Sous-total HT</span><strong>${formatGNF(subtotal)} GNF</strong></div>
-        <div class="row"><span>TVA (${tvaRate}%)</span><strong>${formatGNF(tva)} GNF</strong></div>
+        <div class="row"><span>Sous-total</span><strong>${formatGNF(subtotal)} GNF</strong></div>
+        <div class="row"><span>Livraison</span><strong>${formatGNF(deliveryFee)} GNF</strong></div>
+        <div class="row"><span>TVA</span><strong>${formatGNF(tva)} GNF</strong></div>
         <div class="row grand"><span>Total TTC</span><span>${formatGNF(total)} GNF</span></div>
       </div>
 
