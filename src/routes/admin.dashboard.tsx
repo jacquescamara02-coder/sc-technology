@@ -37,7 +37,7 @@ function DashboardPage() {
   }, [products, orders]);
 
   const lowStock = useMemo(
-    () => products.filter((p) => p.stock > 0 && p.stock < 5).slice(0, 8),
+    () => products.filter((p) => p.stock > 0 && p.stock <= 5).slice(0, 8),
     [products],
   );
 
