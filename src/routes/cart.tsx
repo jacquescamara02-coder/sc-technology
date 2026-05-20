@@ -8,8 +8,6 @@ export const Route = createFileRoute("/cart")({
   component: CartPage,
 });
 
-const TVA_RATE = 0.18;
-
 function CartPage() {
   const items = useCart((s) => s.items);
   const setQty = useCart((s) => s.setQty);
@@ -17,8 +15,7 @@ function CartPage() {
   const clear = useCart((s) => s.clear);
 
   const subtotal = items.reduce((a, i) => a + i.qty * i.product.price, 0);
-  const tva = Math.round(subtotal * TVA_RATE);
-  const total = subtotal + tva;
+  const total = subtotal;
 
   if (items.length === 0) {
     return (
@@ -114,13 +111,16 @@ function CartPage() {
 
       <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
         <Row label="Sous-total" value={formatGNF(subtotal)} />
-        <Row label="Livraison" value={<span className="text-muted-foreground">À calculer</span>} />
-        <Row label="TVA (18%)" value={formatGNF(tva)} />
+        <Row label="Livraison" value={<span className="text-muted-foreground">Calculée par notre équipe</span>} />
+        <Row label="TVA" value={<span className="text-muted-foreground">Selon votre profil</span>} />
         <div className="my-2 border-t border-border" />
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-foreground">TOTAL</span>
+          <span className="text-sm font-semibold text-foreground">TOTAL ARTICLES</span>
           <span className="text-2xl font-bold text-primary">{formatGNF(total)}</span>
         </div>
+        <p className="pt-1 text-[11px] leading-relaxed text-muted-foreground">
+          Les frais de livraison et la TVA seront confirmés par notre équipe après validation de votre commande.
+        </p>
       </div>
 
       <Link
