@@ -310,7 +310,6 @@ function inputCls(error?: string) {
 function SummaryContent({
   items,
   subtotal,
-  tva,
   total,
 }: {
   items: ReturnType<typeof useCart.getState>["items"];
