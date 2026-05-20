@@ -49,8 +49,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCart((s) => s.items);
   const subtotal = items.reduce((a, i) => a + i.qty * i.product.price, 0);
-  const tva = Math.round(subtotal * TVA_RATE);
-  const total = subtotal + tva;
+  const total = subtotal;
 
   const setDelivery = useOrders((s) => s.setDelivery);
   const savedDelivery = useOrders((s) => s.delivery);
