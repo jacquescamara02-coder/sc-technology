@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useAdminData, type AdminProduct } from "@/lib/admin-store";
 
-export const LOW_STOCK_THRESHOLD = 5;
+export const LOW_STOCK_THRESHOLD = 3;
 
 export function isLowStock(p: AdminProduct) {
   return p.active && p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD;

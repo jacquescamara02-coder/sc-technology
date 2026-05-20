@@ -37,7 +37,7 @@ function DashboardPage() {
   }, [products, orders]);
 
   const lowStock = useMemo(
-    () => products.filter((p) => p.stock > 0 && p.stock <= 5).slice(0, 8),
+    () => products.filter((p) => p.stock > 0 && p.stock <= 3).slice(0, 8),
     [products],
   );
 
@@ -145,7 +145,7 @@ function DashboardPage() {
               <AlertTriangle className="h-4 w-4 text-orange-500" />
               Stock faible
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">Produits avec 5 unités ou moins</p>
+            <p className="text-xs text-slate-500 mt-0.5">Produits avec 3 unités ou moins</p>
           </div>
           {lowStock.length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-500">Aucune alerte 🎉</div>
