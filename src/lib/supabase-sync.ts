@@ -465,7 +465,7 @@ async function syncOrdersDelta(prev: Order[], next: Order[]) {
       subtotal: o.subtotal,
       tva: o.tva,
       total: o.total,
-      delivery: o.delivery,
+      delivery: { ...o.delivery, deliveryFee: o.deliveryFee ?? 0 },
       payment: o.payment,
       created_at: new Date(o.createdAt).toISOString(),
     });
