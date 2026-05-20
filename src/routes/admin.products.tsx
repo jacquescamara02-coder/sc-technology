@@ -258,6 +258,23 @@ function ProductsPage() {
                       >
                         <Facebook className="h-4 w-4" />
                       </Link>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const caption = generateFacebookCaption(p);
+                          try {
+                            await navigator.clipboard.writeText(caption);
+                            toast.success("Annonce copiée — collez-la dans Meta Ads Manager");
+                          } catch {
+                            toast.message("Copiez le texte d'annonce manuellement");
+                          }
+                          window.open("https://www.facebook.com/adsmanager/creation", "_blank", "noopener,noreferrer");
+                        }}
+                        className="inline-flex items-center justify-center h-8 w-8 rounded-md text-slate-500 hover:text-fuchsia-600 hover:bg-fuchsia-50"
+                        title="Booster sur Facebook (Meta Ads)"
+                      >
+                        <Rocket className="h-4 w-4" />
+                      </button>
                       <Link
                         to="/admin/products/$productId/edit"
                         params={{ productId: p.id }}
