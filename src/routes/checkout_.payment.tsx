@@ -25,7 +25,6 @@ export const Route = createFileRoute("/checkout_/payment")({
   component: PaymentPage,
 });
 
-const TVA_RATE = 0.18;
 const STEPS = [
   { id: 1, label: "Livraison", icon: Truck, status: "done" as const },
   { id: 2, label: "Paiement", icon: CreditCard, status: "active" as const },
@@ -40,8 +39,8 @@ function PaymentPage() {
   const addOrder = useOrders((s) => s.addOrder);
 
   const subtotal = items.reduce((a, i) => a + i.qty * i.product.price, 0);
-  const tva = Math.round(subtotal * TVA_RATE);
-  const total = subtotal + tva;
+  const tva = 0;
+  const total = subtotal;
 
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [method, setMethod] = useState<PaymentMethod>("orange_money");
@@ -621,8 +620,8 @@ function SummaryContent({
       </ul>
       <div className="space-y-1.5 border-t border-border pt-3 text-sm">
         <Row label="Sous-total" value={formatGNF(subtotal)} />
-        <Row label="Livraison" value="À calculer" muted />
-        <Row label="TVA (18%)" value={formatGNF(tva)} />
+        <Row label="Livraison" value="Calculée par notre équipe" muted />
+        <Row label="TVA" value="Selon votre profil" muted />
       </div>
       <div className="flex items-center justify-between border-t border-border pt-3">
         <span className="text-sm font-semibold text-foreground">TOTAL</span>

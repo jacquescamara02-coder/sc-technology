@@ -49,8 +49,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCart((s) => s.items);
   const subtotal = items.reduce((a, i) => a + i.qty * i.product.price, 0);
-  const tva = Math.round(subtotal * TVA_RATE);
-  const total = subtotal + tva;
+  const total = subtotal;
 
   const setDelivery = useOrders((s) => s.setDelivery);
   const savedDelivery = useOrders((s) => s.delivery);
@@ -257,7 +256,7 @@ function CheckoutPage() {
             </button>
             {summaryOpen && (
               <div className="border-t border-border p-4">
-                <SummaryContent items={items} subtotal={subtotal} tva={tva} total={total} />
+                <SummaryContent items={items} subtotal={subtotal} total={total} />
               </div>
             )}
           </section>
@@ -274,7 +273,7 @@ function CheckoutPage() {
         <aside className="hidden lg:block">
           <div className="sticky top-20 space-y-3 rounded-2xl border border-border bg-card p-4">
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Votre commande</h2>
-            <SummaryContent items={items} subtotal={subtotal} tva={tva} total={total} />
+            <SummaryContent items={items} subtotal={subtotal} total={total} />
           </div>
         </aside>
       </div>
@@ -311,12 +310,10 @@ function inputCls(error?: string) {
 function SummaryContent({
   items,
   subtotal,
-  tva,
   total,
 }: {
   items: ReturnType<typeof useCart.getState>["items"];
   subtotal: number;
-  tva: number;
   total: number;
 }) {
   return (
@@ -339,15 +336,15 @@ function SummaryContent({
       </ul>
       <div className="space-y-1.5 border-t border-border pt-3 text-sm">
         <Row label="Sous-total" value={formatGNF(subtotal)} />
-        <Row label="Livraison" value="À calculer" muted />
-        <Row label="TVA (18%)" value={formatGNF(tva)} />
+        <Row label="Livraison" value="Calculée par notre équipe" muted />
+        <Row label="TVA" value="Selon votre profil" muted />
       </div>
       <div className="flex items-center justify-between border-t border-border pt-3">
-        <span className="text-sm font-semibold text-foreground">TOTAL</span>
+        <span className="text-sm font-semibold text-foreground">TOTAL ARTICLES</span>
         <span className="text-xl font-bold text-primary">{formatGNF(total)}</span>
       </div>
       <div className="flex items-center gap-2 rounded-xl bg-success/10 px-3 py-2 text-[11px] text-success">
-        <Check className="h-3.5 w-3.5" /> Paiement à la livraison disponible
+        <Check className="h-3.5 w-3.5" /> Frais de livraison et TVA confirmés après validation
       </div>
     </div>
   );

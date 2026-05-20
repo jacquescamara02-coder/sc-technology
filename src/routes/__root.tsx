@@ -18,6 +18,7 @@ import { Footer } from "@/components/Footer";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { useSupabaseSync } from "@/lib/supabase-sync";
+import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 
 function NotFoundComponent() {
   return (
@@ -128,6 +129,7 @@ function RootComponent() {
         </main>
         <Footer />
         <BottomNav />
+        <FloatingWhatsApp />
       </div>
     </QueryClientProvider>
   );
