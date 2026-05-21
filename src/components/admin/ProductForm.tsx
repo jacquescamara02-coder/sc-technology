@@ -86,6 +86,18 @@ export function ProductForm({ initial }: Props) {
       toast.error("Veuillez remplir le nom, la catégorie et la sous-catégorie");
       return;
     }
+    const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+    const nameKey = norm(p.name);
+    const skuKey = p.sku.trim().toLowerCase();
+    const duplicate = products.find(
+      (x) =>
+        x.id !== p.id &&
+        (norm(x.name) === nameKey || (skuKey && x.sku.trim().toLowerCase() === skuKey)),
+    );
+    if (duplicate) {
+      toast.error(`Ce produit existe déjà : « ${duplicate.name} ». Modifiez-le au lieu de le recréer.`);
+      return;
+    }
     const isNew = !initial;
     if (initial) {
       updateProduct(p.id, p);
