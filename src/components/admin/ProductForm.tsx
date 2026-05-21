@@ -31,7 +31,7 @@ const emptyProduct = (): AdminProduct => ({
 
 export function ProductForm({ initial }: Props) {
   const navigate = useNavigate();
-  const { categories, addProduct, updateProduct } = useAdminData();
+  const { categories, addProduct, updateProduct, products } = useAdminData();
   const [p, setP] = useState<AdminProduct>(initial ?? emptyProduct());
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -84,6 +84,18 @@ export function ProductForm({ initial }: Props) {
     e.preventDefault();
     if (!p.name.trim() || !p.category || !p.subcategory) {
       toast.error("Veuillez remplir le nom, la catégorie et la sous-catégorie");
+      return;
+    }
+    const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+    const nameKey = norm(p.name);
+    const skuKey = p.sku.trim().toLowerCase();
+    const duplicate = products.find(
+      (x) =>
+        x.id !== p.id &&
+        (norm(x.name) === nameKey || (skuKey && x.sku.trim().toLowerCase() === skuKey)),
+    );
+    if (duplicate) {
+      toast.error(`Ce produit existe déjà : « ${duplicate.name} ». Modifiez-le au lieu de le recréer.`);
       return;
     }
     const isNew = !initial;
