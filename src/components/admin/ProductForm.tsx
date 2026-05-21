@@ -31,7 +31,7 @@ const emptyProduct = (): AdminProduct => ({
 
 export function ProductForm({ initial }: Props) {
   const navigate = useNavigate();
-  const { categories, addProduct, updateProduct } = useAdminData();
+  const { categories, addProduct, updateProduct, products } = useAdminData();
   const [p, setP] = useState<AdminProduct>(initial ?? emptyProduct());
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
