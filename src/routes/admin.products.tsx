@@ -1,8 +1,8 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { Plus, Search, Trash2, CheckCircle2, XCircle, Pencil, Facebook, Star, Sparkles, ImagePlus, Rocket, Copy } from "lucide-react";
+import { Plus, Search, Trash2, CheckCircle2, XCircle, Pencil, Facebook, Star, Sparkles, ImagePlus, Rocket } from "lucide-react";
 import { toast } from "sonner";
-import { useAdminData, generateProductId, type AdminProduct } from "@/lib/admin-store";
+import { useAdminData } from "@/lib/admin-store";
 import { generateFacebookCaption } from "@/lib/facebook";
 import { formatGNF } from "@/lib/data";
 
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/products")({
 const PAGE_SIZE = 50;
 
 function ProductsPage() {
-  const { products, categories, bulkUpdate, bulkDelete, deleteProduct, updateProduct, addProduct } = useAdminData();
+  const { products, categories, bulkUpdate, bulkDelete, deleteProduct, updateProduct } = useAdminData();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("all");
