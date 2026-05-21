@@ -1,8 +1,8 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { Plus, Search, Trash2, CheckCircle2, XCircle, Pencil, Facebook, Star, Sparkles, ImagePlus, Rocket } from "lucide-react";
+import { Plus, Search, Trash2, CheckCircle2, XCircle, Pencil, Facebook, Star, Sparkles, ImagePlus, Rocket, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { useAdminData } from "@/lib/admin-store";
+import { useAdminData, generateProductId, type AdminProduct } from "@/lib/admin-store";
 import { generateFacebookCaption } from "@/lib/facebook";
 import { formatGNF } from "@/lib/data";
 
