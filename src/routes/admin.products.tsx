@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/products")({
 const PAGE_SIZE = 50;
 
 function ProductsPage() {
-  const { products, categories, bulkUpdate, bulkDelete, deleteProduct, updateProduct } = useAdminData();
+  const { products, categories, bulkUpdate, bulkDelete, deleteProduct, updateProduct, addProduct } = useAdminData();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("all");
