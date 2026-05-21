@@ -286,6 +286,28 @@ function ProductsPage() {
                       <button
                         type="button"
                         onClick={() => {
+                          const newId = generateProductId();
+                          const copy: AdminProduct = {
+                            ...p,
+                            id: newId,
+                            name: `${p.name} (copie)`,
+                            sku: `${p.sku}-COPY-${Math.random().toString(36).slice(2, 5).toUpperCase()}`,
+                            createdAt: Date.now(),
+                            facebookPostedAt: undefined,
+                            facebookStatus: undefined,
+                            publishFacebook: false,
+                          };
+                          addProduct(copy);
+                          toast.success("Produit dupliqué");
+                        }}
+                        className="inline-flex items-center justify-center h-8 w-8 rounded-md text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        title="Dupliquer"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
                           if (confirm(`Supprimer "${p.name}" ?`)) deleteProduct(p.id);
                         }}
                         className="inline-flex items-center justify-center h-8 w-8 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50"
