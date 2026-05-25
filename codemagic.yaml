@@ -1,0 +1,38 @@
+workflows:
+  ios-workflow:
+    name: SC Technologie iOS
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      node: latest
+    scripts:
+      - name: Install dependencies
+        script: npm install
+      - name: Build web
+        script: npx vite build --outDir=mobile-dist/client --mode development
+      - name: Create index.html
+        script: |
+          cat > mobile-dist/client/index.html << 'HTML'
+          <!DOCTYPE html>
+          <html lang="fr">
+          <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>SC Technologie</title>
+          </head>
+          <body>
+          <div id="root"></div>
+          </body>
+          </html>
+          HTML
+      - name: Capacitor sync
+        script: npx cap sync ios
+      - name: Build iOS
+        script: |
+          xcodebuild -workspace ios/App/App.xcodeproj/project.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -archivePath build/App.xcarchive \
+            archive
+    artifacts:
+      - build/App.xcarchive
