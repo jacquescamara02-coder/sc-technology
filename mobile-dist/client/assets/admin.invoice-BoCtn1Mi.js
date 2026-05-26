@@ -1,0 +1,56 @@
+import{I as z,D as u,x as e,f as M,v as d}from"./index-Bd0wTxTL.js";import{t as w}from"./index-B1Pw9Fgo.js";import{u as G,g as P}from"./orders-store-CrpQG0gQ.js";import{S as D}from"./save-DFCSjKeG.js";import{P as A}from"./plus-D8hK2hDf.js";import{T as L}from"./trash-2-BjNe3AEu.js";function J(){const{products:i,settings:l}=z(),f=G(t=>t.addOrder),[a,o]=u.useState({fullName:"",phone:"",email:"",address:"",district:"",city:"Conakry"}),[v,T]=u.useState("Espèces"),[h,y]=u.useState([{id:crypto.randomUUID(),name:"",qty:1,price:0}]),[j,I]=u.useState(Math.round((l.vatRate??.18)*100)),p=h.reduce((t,s)=>t+s.qty*s.price,0),g=Math.round(p*j/100),N=p+g,q=u.useMemo(()=>i.filter(t=>t.active),[i]),b=(t,s)=>y(r=>r.map(c=>c.id===t?{...c,...s}:c)),O=t=>y(s=>s.length>1?s.filter(r=>r.id!==t):s),F=()=>y(t=>[...t,{id:crypto.randomUUID(),name:"",qty:1,price:0}]),E=(t,s)=>{const r=i.find(c=>c.id===s);r&&b(t,{productId:s,name:r.name,price:r.price})},C=()=>a.fullName.trim()?a.phone.trim()?h.every(s=>s.name.trim()&&s.qty>0&&s.price>=0)?null:"Chaque ligne doit avoir un produit, une quantité et un prix":"Le téléphone du client est requis":"Le nom du client est requis",$=()=>({id:P(),createdAt:Date.now(),status:"received",items:h.map(t=>({id:t.productId??t.id,name:t.name,brand:"",image:"",qty:t.qty,price:t.price})),subtotal:p,tva:g,total:N,delivery:{fullName:a.fullName,phone:a.phone,email:a.email,address:a.address,district:a.district,city:a.city,notes:"Facture manuelle"},payment:{method:"card",label:v,masked:"—"}}),S=()=>{const t=C();if(t){w.error(t);return}f($()),w.success("Facture enregistrée dans les commandes")},k=()=>{const t=C();if(t){w.error(t);return}const s=$(),r=window.open("","_blank");if(!r)return;const c=s.items.map(x=>`<tr><td>${n(x.name)}</td><td style="text-align:center">${x.qty}</td><td style="text-align:right">${d(x.price)}</td><td style="text-align:right">${d(x.price*x.qty)}</td></tr>`).join("");r.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Facture ${s.id}</title>
+      <style>
+      body{font-family:system-ui,Segoe UI,Roboto;padding:32px;color:#0f172a;max-width:780px;margin:auto}
+      .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:16px;margin-bottom:24px}
+      .brand{font-size:24px;font-weight:800;letter-spacing:-0.02em}
+      .sub{color:#475569;font-size:12px}
+      h2{margin:24px 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#475569}
+      table{width:100%;border-collapse:collapse;margin-top:8px}
+      th,td{padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:13px}
+      th{background:#f8fafc;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#475569}
+      .totals{margin-top:16px;margin-left:auto;width:300px}
+      .totals .row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
+      .totals .grand{border-top:2px solid #0f172a;font-weight:800;font-size:16px;padding-top:10px;margin-top:6px}
+      .pay{margin-top:24px;padding:12px;background:#f8fafc;border-radius:8px;font-size:12px}
+      .foot{margin-top:32px;text-align:center;color:#64748b;font-size:11px}
+      </style></head><body>
+      <div class="head">
+        <div>
+          <div class="brand">SC TECHNOLOGIE</div>
+          <div class="sub">${n(l.address)}</div>
+          <div class="sub">${n(l.contactPhone)} • ${n(l.contactEmail)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:700">FACTURE</div>
+          <div class="sub">N° ${s.id}</div>
+          <div class="sub">${new Date(s.createdAt).toLocaleDateString("fr-FR")}</div>
+        </div>
+      </div>
+
+      <h2>Client</h2>
+      <div style="font-size:13px;line-height:1.5">
+        <strong>${n(a.fullName)}</strong><br/>
+        ${n(a.phone)}${a.email?" • "+n(a.email):""}<br/>
+        ${n(a.address)}${a.district?", "+n(a.district):""}, ${n(a.city)}
+      </div>
+
+      <h2>Détails</h2>
+      <table>
+        <thead><tr><th>Produit</th><th style="text-align:center">Qté</th><th style="text-align:right">PU</th><th style="text-align:right">Total</th></tr></thead>
+        <tbody>${c}</tbody>
+      </table>
+
+      <div class="totals">
+        <div class="row"><span>Sous-total HT</span><strong>${d(p)} GNF</strong></div>
+        <div class="row"><span>TVA (${j}%)</span><strong>${d(g)} GNF</strong></div>
+        <div class="row grand"><span>Total TTC</span><span>${d(N)} GNF</span></div>
+      </div>
+
+      <div class="pay">
+        <strong>Mode de paiement :</strong> ${n(v)}<br/>
+        <strong>Orange Money marchand :</strong> 610-95-38-38 • SC TECHNOLOGIE
+      </div>
+
+      <div class="foot">Merci de votre confiance — SC TECHNOLOGIE • Guinée</div>
+      <script>window.print()<\/script>
+      </body></html>`),r.document.close()};return e.jsxs("div",{className:"space-y-5 max-w-5xl",children:[e.jsxs("div",{className:"flex flex-wrap items-start justify-between gap-3",children:[e.jsxs("div",{children:[e.jsx("h2",{className:"text-2xl font-bold",children:"Nouvelle facture"}),e.jsx("p",{className:"text-sm text-slate-500 mt-0.5",children:"Créez une facture client directement et imprimez-la"})]}),e.jsxs("div",{className:"flex gap-2",children:[e.jsxs("button",{onClick:S,className:"inline-flex items-center gap-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg",children:[e.jsx(D,{className:"h-4 w-4"})," Enregistrer"]}),e.jsxs("button",{onClick:k,className:"inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg",children:[e.jsx(M,{className:"h-4 w-4"})," Imprimer"]})]})]}),e.jsxs("div",{className:"bg-white border border-slate-200 rounded-2xl p-5 space-y-4",children:[e.jsx("h3",{className:"font-semibold text-slate-900",children:"Client"}),e.jsxs("div",{className:"grid grid-cols-1 md:grid-cols-2 gap-3",children:[e.jsx(m,{label:"Nom complet *",value:a.fullName,onChange:t=>o({...a,fullName:t})}),e.jsx(m,{label:"Téléphone *",value:a.phone,onChange:t=>o({...a,phone:t}),placeholder:"+224 …"}),e.jsx(m,{label:"Email",value:a.email,onChange:t=>o({...a,email:t})}),e.jsx(m,{label:"Ville",value:a.city,onChange:t=>o({...a,city:t})}),e.jsx(m,{label:"Adresse",value:a.address,onChange:t=>o({...a,address:t})}),e.jsx(m,{label:"Quartier",value:a.district,onChange:t=>o({...a,district:t})})]})]}),e.jsxs("div",{className:"bg-white border border-slate-200 rounded-2xl p-5 space-y-3",children:[e.jsxs("div",{className:"flex items-center justify-between",children:[e.jsx("h3",{className:"font-semibold text-slate-900",children:"Articles"}),e.jsxs("button",{type:"button",onClick:F,className:"inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium",children:[e.jsx(A,{className:"h-4 w-4"})," Ajouter une ligne"]})]}),e.jsx("div",{className:"overflow-x-auto",children:e.jsxs("table",{className:"w-full text-sm",children:[e.jsx("thead",{className:"text-xs uppercase tracking-wide text-slate-500",children:e.jsxs("tr",{children:[e.jsx("th",{className:"px-2 py-2 text-left font-medium",children:"Produit / Désignation"}),e.jsx("th",{className:"px-2 py-2 text-right font-medium w-24",children:"Qté"}),e.jsx("th",{className:"px-2 py-2 text-right font-medium w-40",children:"Prix unit. (GNF)"}),e.jsx("th",{className:"px-2 py-2 text-right font-medium w-32",children:"Total"}),e.jsx("th",{className:"w-8"})]})}),e.jsx("tbody",{children:h.map(t=>e.jsxs("tr",{className:"border-t border-slate-100 align-top",children:[e.jsxs("td",{className:"px-2 py-2 space-y-1.5",children:[e.jsxs("select",{value:t.productId??"",onChange:s=>E(t.id,s.target.value),className:"w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs bg-white",children:[e.jsx("option",{value:"",children:"— Sélectionner un produit (ou saisir libre) —"}),q.map(s=>e.jsx("option",{value:s.id,children:s.name},s.id))]}),e.jsx("input",{value:t.name,onChange:s=>b(t.id,{name:s.target.value,productId:void 0}),placeholder:"Désignation",className:"w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-sm"})]}),e.jsx("td",{className:"px-2 py-2",children:e.jsx("input",{type:"number",min:1,value:t.qty,onChange:s=>b(t.id,{qty:Math.max(1,Number(s.target.value))}),className:"w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-sm text-right"})}),e.jsx("td",{className:"px-2 py-2",children:e.jsx("input",{type:"number",min:0,value:t.price,onChange:s=>b(t.id,{price:Math.max(0,Number(s.target.value))}),className:"w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-sm text-right"})}),e.jsx("td",{className:"px-2 py-2 text-right font-semibold whitespace-nowrap",children:d(t.qty*t.price)}),e.jsx("td",{className:"px-2 py-2",children:e.jsx("button",{onClick:()=>O(t.id),className:"text-slate-400 hover:text-red-600 p-1.5",children:e.jsx(L,{className:"h-4 w-4"})})})]},t.id))})]})})]}),e.jsxs("div",{className:"grid gap-4 md:grid-cols-2",children:[e.jsxs("div",{className:"bg-white border border-slate-200 rounded-2xl p-5 space-y-3",children:[e.jsx("h3",{className:"font-semibold text-slate-900",children:"Paiement"}),e.jsxs("select",{value:v,onChange:t=>T(t.target.value),className:"w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white",children:[e.jsx("option",{children:"Espèces"}),e.jsx("option",{children:"Orange Money"}),e.jsx("option",{children:"Carte bancaire"}),e.jsx("option",{children:"Virement"}),e.jsx("option",{children:"À crédit"})]}),e.jsxs("div",{className:"text-xs text-slate-500",children:["Orange Money marchand : ",e.jsx("strong",{className:"text-[#FF6600]",children:"610-95-38-38"})]})]}),e.jsxs("div",{className:"bg-white border border-slate-200 rounded-2xl p-5 space-y-2",children:[e.jsx("h3",{className:"font-semibold text-slate-900 mb-1",children:"Total"}),e.jsx(R,{label:"Sous-total HT",value:`${d(p)} GNF`}),e.jsxs("div",{className:"flex items-center justify-between text-sm",children:[e.jsxs("span",{className:"text-slate-600",children:["TVA",e.jsx("input",{type:"number",min:0,max:100,value:j,onChange:t=>I(Math.max(0,Math.min(100,Number(t.target.value)))),className:"mx-1 w-12 px-1.5 py-0.5 border border-slate-300 rounded text-xs text-right"}),"%"]}),e.jsxs("span",{className:"font-medium",children:[d(g)," GNF"]})]}),e.jsxs("div",{className:"border-t border-slate-200 pt-2 flex items-center justify-between text-base font-bold",children:[e.jsx("span",{children:"Total TTC"}),e.jsxs("span",{className:"text-blue-700",children:[d(N)," GNF"]})]})]})]})]})}function m({label:i,value:l,onChange:f,placeholder:a}){return e.jsxs("label",{className:"block",children:[e.jsx("span",{className:"block text-xs font-medium text-slate-700 mb-1",children:i}),e.jsx("input",{value:l,onChange:o=>f(o.target.value),placeholder:a,className:"w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"})]})}function R({label:i,value:l}){return e.jsxs("div",{className:"flex items-center justify-between text-sm",children:[e.jsx("span",{className:"text-slate-600",children:i}),e.jsx("span",{className:"font-medium",children:l})]})}function n(i){return(i??"").replace(/[&<>"']/g,l=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[l])}export{J as component};
