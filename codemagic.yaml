@@ -5,6 +5,8 @@ workflows:
     environment:
       xcode: latest
       node: latest
+      groups:
+        - ios_credentials
     scripts:
       - name: Install dependencies
         script: npm install
@@ -27,6 +29,13 @@ workflows:
           HTML
       - name: Capacitor sync
         script: npx cap sync ios
+      - name: Install certificate
+        script: |
+          echo $CERTIFICATE_PRIVATE_KEY | base64 --decode > /tmp/certificate.p12
+          keychain initialize
+          keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CERTIFICATE_PASSWORD
+          echo $PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
+          xcode-project use-profiles --profile /tmp/profile.mobileprovision
       - name: Build iOS
         script: |
           xcodebuild -workspace ios/App/App.xcodeproj/project.xcworkspace \
