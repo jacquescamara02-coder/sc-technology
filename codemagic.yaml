@@ -35,7 +35,7 @@ workflows:
           keychain initialize
           keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CERTIFICATE_PASSWORD
           echo $PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
-          xcode-project use-profiles --profile /tmp/profile.mobileprovision
+          xcode-project use-profiles
       - name: Build iOS
         script: |
           xcodebuild -workspace ios/App/App.xcodeproj/project.xcworkspace \
