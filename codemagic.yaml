@@ -42,6 +42,12 @@ workflows:
             -scheme App \
             -configuration Release \
             -archivePath build/App.xcarchive \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="SC Technologie Distribution" \
+            CODE_SIGN_IDENTITY="Apple Distribution: Jacques Camara" \
             archive
     artifacts:
-      - build/App.xcarchive
+      - build/App.xcCODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="SC Technologie Distribution" \
+            CODE_SIGN_IDENTITY="Apple Distribution: Jacques Camara" \
+            archive
