@@ -38,6 +38,9 @@ workflows:
           xcode-project use-profiles --profile /tmp/profile.mobileprovision
       - name: Build iOS
         script: |
+          UUID=$(security cms -D -i /tmp/profile.mobileprovision 2>/dev/null | plutil -extract UUID raw -)
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
           xcodebuild -workspace ios/App/App.xcodeproj/project.xcworkspace \
             -scheme App \
             -configuration Release \
