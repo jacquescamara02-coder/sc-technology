@@ -49,5 +49,17 @@ workflows:
             PROVISIONING_PROFILE_SPECIFIER="SC Technologie Distribution" \
             CODE_SIGN_IDENTITY="Apple Distribution: Jacques Camara (3QSRLS3CV4)" \
             archive
+      - name: Export and Upload IPA
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath build/App.xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath build
+          xcrun altool --upload-app \
+            -f build/App.ipa \
+            -t ios \
+            -u "$APP_STORE_EMAIL" \
+            -p "$APP_STORE_PASSWORD"
     artifacts:
       - build/App.xcarchive
+      - build/App.ipa
