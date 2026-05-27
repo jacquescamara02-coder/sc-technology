@@ -51,14 +51,3 @@ workflows:
             archive
     artifacts:
       - build/App.xcarchive
-      - name: Upload to App Store
-        script: |
-          xcodebuild -exportArchive \
-            -archivePath build/App.xcarchive \
-            -exportOptionsPlist ios/ExportOptions.plist \
-            -exportPath build
-          xcrun altool --upload-app \
-            -f build/App.ipa \
-            -t ios \
-            -u "$APP_STORE_EMAIL" \
-            -p "$APP_STORE_PASSWORD"
