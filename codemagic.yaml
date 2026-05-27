@@ -53,7 +53,7 @@ workflows:
         script: |
           xcodebuild -exportArchive \
             -archivePath build/App.xcarchive \
-            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportOptionsPlist /Users/builder/export_options.plist \
             -exportPath build
           xcrun altool --upload-app \
             -f build/App.ipa \
