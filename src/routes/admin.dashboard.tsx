@@ -41,11 +41,6 @@ function DashboardPage() {
     [products],
   );
 
-  const lowStock = useMemo(
-    () => products.filter((p) => p.stock > 0 && p.stock <= 3).slice(0, 8),
-    [products],
-  );
-
   const recentProducts = useMemo(
     () =>
       [...products]
@@ -54,7 +49,9 @@ function DashboardPage() {
     [products],
   );
 
-    // Use addOrder trick — instead let's mutate via store directly
+  const recentOrders = orders.slice(0, 8);
+
+  const updateStatus = (orderId: string, status: OrderStatus) => {
     const o = useOrders.getState().orders.find((x) => x.id === orderId);
     if (!o) return;
     useOrders.setState({
@@ -62,8 +59,8 @@ function DashboardPage() {
         x.id === orderId ? { ...x, status } : x,
       ),
     });
-    void addOrder; // keep import
-  };
+    void addOrder;
+
 
   return (
     <div className="space-y-6">
