@@ -41,10 +41,17 @@ function DashboardPage() {
     [products],
   );
 
+  const recentProducts = useMemo(
+    () =>
+      [...products]
+        .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0))
+        .slice(0, 8),
+    [products],
+  );
+
   const recentOrders = orders.slice(0, 8);
 
   const updateStatus = (orderId: string, status: OrderStatus) => {
-    // Use addOrder trick — instead let's mutate via store directly
     const o = useOrders.getState().orders.find((x) => x.id === orderId);
     if (!o) return;
     useOrders.setState({
@@ -52,8 +59,9 @@ function DashboardPage() {
         x.id === orderId ? { ...x, status } : x,
       ),
     });
-    void addOrder; // keep import
+    void addOrder;
   };
+
 
   return (
     <div className="space-y-6">
@@ -170,7 +178,52 @@ function DashboardPage() {
           )}
         </div>
       </div>
+
+      <div className="bg-white border border-slate-200 rounded-2xl">
+        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold">Produits récents</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Les derniers articles ajoutés</p>
+          </div>
+          <Link to="/admin/products" className="text-sm text-blue-600 hover:underline">
+            Voir tout
+          </Link>
+        </div>
+        {recentProducts.length === 0 ? (
+          <div className="p-8 text-center text-sm text-slate-500">Aucun produit pour le moment.</div>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {recentProducts.map((p) => (
+              <li key={p.id} className="px-5 py-3 flex items-center gap-3">
+                {p.images[0]?.startsWith("http") || p.images[0]?.startsWith("data:") ? (
+                  <img
+                    src={p.images[0]}
+                    alt={p.name}
+                    className="h-10 w-10 rounded-lg object-cover flex-shrink-0 bg-slate-100"
+                  />
+                ) : (
+                  <div
+                    className="h-10 w-10 rounded-lg flex-shrink-0"
+                    style={{ background: p.images[0] || "#e2e8f0" }}
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{p.name}</p>
+                  <p className="text-xs text-slate-500 truncate">
+                    {p.brand} · {p.category}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold">{formatGNF(p.price)}</p>
+                  <p className="text-xs text-slate-500">Stock: {p.stock}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
+
   );
 }
 
