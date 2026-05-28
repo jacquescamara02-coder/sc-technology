@@ -60,6 +60,7 @@ function DashboardPage() {
       ),
     });
     void addOrder;
+  };
 
 
   return (
