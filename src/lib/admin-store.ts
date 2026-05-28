@@ -93,15 +93,70 @@ interface AdminAuth {
 export const ADMIN_EMAIL = "admin@techshopgn.com";
 const ADMIN_PASSWORD = "Admin2024!";
 
-function safeStorage() {
-  if (typeof window === "undefined") return undefined as never;
-  try {
-    window.localStorage.setItem("__test__", "1");
-    window.localStorage.removeItem("__test__");
-    return window.localStorage;
-  } catch {
-    return window.sessionStorage;
-  }
+function safeStorage(): Storage {
+  // In-memory fallback for environments where Web Storage is unavailable or
+  // throws (e.g. iPad Safari quota exceeded, private mode).
+  const memory = new Map<string, string>();
+  const memStorage: Storage = {
+    get length() {
+      return memory.size;
+    },
+    clear: () => memory.clear(),
+    getItem: (k) => (memory.has(k) ? memory.get(k)! : null),
+    key: (i) => Array.from(memory.keys())[i] ?? null,
+    removeItem: (k) => {
+      memory.delete(k);
+    },
+    setItem: (k, v) => {
+      memory.set(k, v);
+    },
+  };
+
+  if (typeof window === "undefined") return memStorage;
+
+  const pick = (): Storage | null => {
+    try {
+      window.localStorage.setItem("__test__", "1");
+      window.localStorage.removeItem("__test__");
+      return window.localStorage;
+    } catch {
+      try {
+        window.sessionStorage.setItem("__test__", "1");
+        window.sessionStorage.removeItem("__test__");
+        return window.sessionStorage;
+      } catch {
+        return null;
+      }
+    }
+  };
+
+  const underlying = pick();
+  if (!underlying) return memStorage;
+
+  // Wrap setItem so a QuotaExceededError (common on iPad Safari with large
+  // product images) never bubbles up and crashes the app. Drop oversize
+  // payloads silently — Supabase remains the source of truth.
+  return {
+    get length() {
+      return underlying.length;
+    },
+    clear: () => underlying.clear(),
+    getItem: (k) => underlying.getItem(k),
+    key: (i) => underlying.key(i),
+    removeItem: (k) => underlying.removeItem(k),
+    setItem: (k, v) => {
+      try {
+        underlying.setItem(k, v);
+      } catch {
+        try {
+          underlying.removeItem(k);
+        } catch {
+          /* ignore */
+        }
+        memory.set(k, v);
+      }
+    },
+  };
 }
 
 function slug(s: string) {
