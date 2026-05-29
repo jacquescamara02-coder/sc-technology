@@ -21,7 +21,19 @@ const memoryStorage: Storage = {
 function pickBrowserStorage(): Storage | null {
   if (typeof window === "undefined") return null;
 
-  for (const storage of [window.localStorage, window.sessionStorage]) {
+  const candidates: Storage[] = [];
+  try {
+    candidates.push(window.localStorage);
+  } catch {
+    // Accessing localStorage itself can throw in restricted iPad WebViews.
+  }
+  try {
+    candidates.push(window.sessionStorage);
+  } catch {
+    // Accessing sessionStorage itself can throw too.
+  }
+
+  for (const storage of candidates) {
     try {
       const testKey = "__sc_storage_test__";
       storage.setItem(testKey, "1");
