@@ -288,21 +288,27 @@ export function useSupabaseSync() {
       void syncOrdersDelta(prev.orders, next.orders);
     });
 
-    // realtime
-    const channel = supabase
-      .channel("app-sync")
-      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
-        void refreshProducts();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
-        void refreshOrders();
-      })
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    try {
+      // Realtime is progressive enhancement. iPad WebViews/Safari can block
+      // storage or sockets during launch, so it must never block rendering.
+      channel = supabase
+        .channel("app-sync")
+        .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
+          void refreshProducts();
+        })
+        .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+          void refreshOrders();
+        })
+        .subscribe();
+    } catch (err) {
+      console.error("[supabase-sync] realtime disabled", err);
+    }
 
     return () => {
       unsubAdmin();
       unsubOrders();
-      supabase.removeChannel(channel);
+      if (channel) void supabase.removeChannel(channel);
     };
   }, []);
 }
