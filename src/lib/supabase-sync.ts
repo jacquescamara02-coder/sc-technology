@@ -113,7 +113,7 @@ const supabase = {
     delete: () => new DeleteBuilder(table),
   }),
   channel: (_name: string) => ({
-    on: () => supabase.channel(_name),
+    on: (..._args: unknown[]) => supabase.channel(_name),
     subscribe: () => supabase.channel(_name),
   }),
   removeChannel: async (_channel: unknown) => "ok",
