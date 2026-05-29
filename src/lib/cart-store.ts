@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Product } from "./data";
+import { safeStorage } from "./safe-storage";
 
 interface CartItem {
   product: Product;
@@ -47,9 +48,7 @@ export const useCart = create<CartState>()(
     }),
     {
       name: "techshop-cart",
-      storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? window.localStorage : (undefined as never),
-      ),
+      storage: createJSONStorage(() => safeStorage()),
       partialize: (s) => ({ items: s.items }),
     },
   ),
