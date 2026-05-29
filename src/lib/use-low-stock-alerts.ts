@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useAdminData, type AdminProduct } from "@/lib/admin-store";
+import { safeStorage } from "@/lib/safe-storage";
 
 export const LOW_STOCK_THRESHOLD = 3;
 
@@ -22,9 +23,10 @@ export function useLowStockAlerts() {
 
   useEffect(() => {
     const KEY = "sc-low-stock-notified";
+    const storage = safeStorage();
     let notified: Record<string, "low" | "out" | "ok"> = {};
     try {
-      notified = JSON.parse(localStorage.getItem(KEY) || "{}");
+      notified = JSON.parse(storage.getItem(KEY) || "{}");
     } catch {
       notified = {};
     }
@@ -61,7 +63,7 @@ export function useLowStockAlerts() {
 
     if (changed) {
       try {
-        localStorage.setItem(KEY, JSON.stringify(notified));
+        storage.setItem(KEY, JSON.stringify(notified));
       } catch {
         /* ignore */
       }

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { safeStorage } from "./safe-storage";
 
 export interface DeliveryInfo {
   fullName: string;
@@ -67,9 +68,7 @@ export const useOrders = create<State>()(
     }),
     {
       name: "techshop-orders",
-      storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? window.localStorage : (undefined as never),
-      ),
+      storage: createJSONStorage(() => safeStorage()),
     },
   ),
 );

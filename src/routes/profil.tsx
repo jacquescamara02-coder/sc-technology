@@ -21,6 +21,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ThemePicker } from "@/components/ThemePicker";
 import { useOrders } from "@/lib/orders-store";
+import { safeStorage } from "@/lib/safe-storage";
 
 export const Route = createFileRoute("/profil")({
   component: ProfilePage,
@@ -62,9 +63,7 @@ export const useProfile = create<ProfileState>()(
     }),
     {
       name: "sc-profile",
-      storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? window.localStorage : (undefined as never),
-      ),
+      storage: createJSONStorage(() => safeStorage()),
     },
   ),
 );
