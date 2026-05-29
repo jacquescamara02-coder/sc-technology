@@ -1,9 +1,4 @@
 import { useEffect, useRef } from "react";
-import { supabase as _supabase } from "@/integrations/supabase/client";
-
-// Untyped client — tables exist in DB but generated types haven't refreshed yet
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const supabase = _supabase as any;
 import {
   useAdminData,
   type AdminProduct,
@@ -13,6 +8,116 @@ import {
   type FacebookPost,
 } from "@/lib/admin-store";
 import { useOrders, type Order } from "@/lib/orders-store";
+
+// Lightweight REST client for the public app data. It avoids Supabase Auth's
+// localStorage dependency at launch, which can throw in restricted iPadOS
+// Safari/WebView environments before React gets a chance to render.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+
+type DbResult<T = any> = { data: T | null; error: { message: string } | null };
+
+function headers(extra?: HeadersInit): HeadersInit {
+  return {
+    apikey: SUPABASE_KEY ?? "",
+    Authorization: `Bearer ${SUPABASE_KEY ?? ""}`,
+    "Content-Type": "application/json",
+    ...extra,
+  };
+}
+
+async function restFetch<T>(table: string, params: URLSearchParams, init?: RequestInit): Promise<DbResult<T>> {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    return { data: null, error: { message: "Backend configuration missing" } };
+  }
+
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${table}${params.size ? `?${params}` : ""}`;
+    const res = await fetch(url, { ...init, headers: headers(init?.headers) });
+    if (!res.ok) return { data: null, error: { message: await res.text() } };
+    if (res.status === 204) return { data: null, error: null };
+    return { data: (await res.json()) as T, error: null };
+  } catch (error) {
+    return { data: null, error: { message: error instanceof Error ? error.message : String(error) } };
+  }
+}
+
+class SelectBuilder<T = any> implements PromiseLike<DbResult<T>> {
+  private params = new URLSearchParams();
+  private wantsSingle = false;
+
+  constructor(private table: string, columns: string) {
+    this.params.set("select", columns);
+  }
+
+  order(column: string, options?: { ascending?: boolean }) {
+    this.params.set("order", `${column}.${options?.ascending === false ? "desc" : "asc"}`);
+    return this;
+  }
+
+  eq(column: string, value: string | number | boolean) {
+    this.params.set(column, `eq.${value}`);
+    return this;
+  }
+
+  maybeSingle() {
+    this.wantsSingle = true;
+    return this as unknown as PromiseLike<DbResult<T extends Array<infer U> ? U : T>>;
+  }
+
+  async execute(): Promise<DbResult<T>> {
+    const result = await restFetch<any[]>(this.table, this.params);
+    if (result.error) return result as DbResult<T>;
+    if (this.wantsSingle) return { data: (result.data?.[0] ?? null) as T, error: null };
+    return result as DbResult<T>;
+  }
+
+  then<TResult1 = DbResult<T>, TResult2 = never>(
+    onfulfilled?: ((value: DbResult<T>) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+}
+
+class DeleteBuilder implements PromiseLike<DbResult<null>> {
+  private params = new URLSearchParams();
+
+  constructor(private table: string) {}
+
+  in(column: string, values: string[]) {
+    this.params.set(column, `in.(${values.join(",")})`);
+    return this.execute();
+  }
+
+  execute() {
+    return restFetch<null>(this.table, this.params, { method: "DELETE" });
+  }
+
+  then<TResult1 = DbResult<null>, TResult2 = never>(
+    onfulfilled?: ((value: DbResult<null>) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+}
+
+const supabase = {
+  from: (table: string) => ({
+    select: (columns = "*") => new SelectBuilder(table, columns),
+    upsert: (rows: unknown) => restFetch(table, new URLSearchParams(), {
+      method: "POST",
+      body: JSON.stringify(rows),
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    }),
+    delete: () => new DeleteBuilder(table),
+  }),
+  channel: (_name: string) => ({
+    on: () => supabase.channel(_name),
+    subscribe: () => supabase.channel(_name),
+  }),
+  removeChannel: async (_channel: unknown) => "ok",
+};
 
 // ------------ row <-> object mappers ------------
 
