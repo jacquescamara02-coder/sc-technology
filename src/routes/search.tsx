@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorefrontCategories, useStorefrontProducts } from "@/lib/storefront";
 import { formatGNF } from "@/lib/data";
 import { Search as SearchIcon, Clock, X, ArrowRight } from "lucide-react";
+import { safeStorage } from "@/lib/safe-storage";
 
 export const Route = createFileRoute("/search")({
   component: SearchPage,
@@ -18,7 +19,7 @@ function SearchPage() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(RECENT_KEY);
+      const raw = safeStorage().getItem(RECENT_KEY);
       if (raw) setRecent(JSON.parse(raw));
     } catch {}
   }, []);
@@ -28,12 +29,12 @@ function SearchPage() {
     if (!v) return;
     const next = [v, ...recent.filter((r) => r.toLowerCase() !== v.toLowerCase())].slice(0, 8);
     setRecent(next);
-    try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch {}
+    try { safeStorage().setItem(RECENT_KEY, JSON.stringify(next)); } catch {}
   };
 
   const clearRecent = () => {
     setRecent([]);
-    try { localStorage.removeItem(RECENT_KEY); } catch {}
+    try { safeStorage().removeItem(RECENT_KEY); } catch {}
   };
 
   const results = useMemo(() => {
