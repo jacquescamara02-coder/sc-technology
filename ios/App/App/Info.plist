@@ -47,5 +47,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-</dict>
+<key>UIDeviceFamily</key><array><integer>1</integer></array></dict>
 </plist>
