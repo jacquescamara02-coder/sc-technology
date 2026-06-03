@@ -12,21 +12,50 @@ workflows:
         script: npm install
       - name: Build web
         script: npx vite build --outDir=mobile-dist/client --mode development
-      - name: Create index.html
+      - name: Create native index.html
         script: |
+          MAIN_JS=$(python3 - <<'PY'
+          from pathlib import Path
+          for p in Path('mobile-dist/client/assets').glob('*.js'):
+              text = p.read_text(errors='ignore')
+              if 'hydrateRoot(document' in text and 'SC TECHNOLOGIE' in text:
+                  print(p.name)
+                  break
+          PY
+          )
+          MAIN_CSS=$(python3 - <<'PY'
+          from pathlib import Path
+          css = sorted(Path('mobile-dist/client/assets').glob('styles-*.css'))
+          print(css[0].name if css else '')
+          PY
+          )
+          test -n "$MAIN_JS"
           cat > mobile-dist/client/index.html << 'HTML'
           <!DOCTYPE html>
-          <html lang="fr">
+          <html lang="fr" class="dark">
           <head>
           <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
           <title>SC Technologie</title>
+          __STYLE_TAG__
+          <script type="module" crossorigin src="./assets/__MAIN_JS__"></script>
           </head>
           <body>
-          <div id="root"></div>
           </body>
           </html>
           HTML
+          if [ -n "$MAIN_CSS" ]; then
+            STYLE_TAG="<link rel=\"stylesheet\" href=\"./assets/$MAIN_CSS\">"
+          else
+            STYLE_TAG=""
+          fi
+          python3 - <<PY
+          from pathlib import Path
+          p = Path('mobile-dist/client/index.html')
+          html = p.read_text()
+          html = html.replace('__MAIN_JS__', '$MAIN_JS').replace('__STYLE_TAG__', '$STYLE_TAG')
+          p.write_text(html)
+          PY
       - name: Capacitor sync
         script: npx cap sync ios
       - name: Install certificate
