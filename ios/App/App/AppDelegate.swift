@@ -7,7 +7,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Keep Capacitor's local file router stable on iPadOS/iOS WebViews.
+        FileManager.default.changeCurrentDirectoryPath("/")
         return true
     }
 
