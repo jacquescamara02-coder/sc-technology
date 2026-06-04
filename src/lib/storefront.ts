@@ -15,7 +15,7 @@ function hueFromString(s: string): number {
 
 function gradientFor(seed: string): string {
   const hue = hueFromString(seed);
-  return `linear-gradient(135deg, oklch(0.42 0.18 ${hue}), oklch(0.28 0.10 ${hue + 30}))`;
+  return `linear-gradient(135deg, hsl(${hue} 72% 42%), hsl(${hue + 30} 70% 26%))`;
 }
 
 export function adaptProduct(p: AdminProduct): Product {
