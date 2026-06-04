@@ -43,7 +43,7 @@ export const cities = ["Conakry", "Labé", "Kankan", "N'Zérékoré", "Kindia", 
 
 // Solid gradient backgrounds as image placeholders
 const img = (hue: number) =>
-  `linear-gradient(135deg, oklch(0.42 0.18 ${hue}), oklch(0.28 0.10 ${hue + 30}))`;
+  `linear-gradient(135deg, hsl(${hue} 72% 42%), hsl(${hue + 30} 70% 26%))`;
 
 interface CatDef {
   id: string;

@@ -35,7 +35,7 @@ export function HeroCarousel() {
                   isImg
                     ? { backgroundImage: `url(${s.image})` }
                     : {
-                        backgroundImage: `linear-gradient(135deg, oklch(0.28 0.10 ${hue}), oklch(0.50 0.22 ${hue + 10}))`,
+                        backgroundImage: `linear-gradient(135deg, hsl(${hue} 72% 32%), hsl(${hue + 10} 78% 46%))`,
                       }
                 }
               >

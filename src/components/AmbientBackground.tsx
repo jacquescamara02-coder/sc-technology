@@ -10,7 +10,7 @@ export function AmbientBackground() {
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
       {/* Base deep gradient (not pure black) */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.24_0.08_265)_0%,oklch(0.16_0.04_260)_45%,oklch(0.12_0.03_260)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#1c3b7a_0%,#16213f_45%,#0b1220_100%)]" />
 
       {/* Animated color blobs */}
       <div className="ambient-blob ambient-blob-1" />
@@ -32,10 +32,10 @@ export function AmbientBackground() {
       />
 
       {/* Top vignette glow */}
-      <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,oklch(0.65_0.22_265/0.35),transparent_70%)] blur-2xl" />
+      <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(0,102,255,0.35),transparent_70%)] blur-2xl" />
 
       {/* Soft bottom vignette (keeps it readable, not pure black) */}
-      <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-[oklch(0.10_0.03_265)]/80 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-[#07101f]/80 to-transparent" />
     </div>
   );
 }
