@@ -116,7 +116,7 @@ function BannersPage() {
           const isImg = s.image && (s.image.startsWith("data:") || s.image.startsWith("http"));
           const bg = isImg
             ? `url(${s.image}) center/cover`
-            : `linear-gradient(135deg, oklch(0.28 0.10 ${s.hue ?? 260}), oklch(0.50 0.22 ${(s.hue ?? 260) + 10}))`;
+            : `linear-gradient(135deg, hsl(${s.hue ?? 260} 72% 32%), hsl(${(s.hue ?? 260) + 10} 78% 46%))`;
           return (
             <div key={s.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
               <div className="h-32 relative" style={{ background: bg }}>
