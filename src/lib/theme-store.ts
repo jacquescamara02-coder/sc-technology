@@ -44,7 +44,7 @@ export function applyTheme(id: string) {
   );
   root.style.setProperty(
     "--shadow-glow",
-    `0 8px 32px -8px color-mix(in oklab, ${preset.primary} 55%, transparent)`,
+    `0 8px 32px -8px ${preset.primary}88`,
   );
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", preset.themeColor);
