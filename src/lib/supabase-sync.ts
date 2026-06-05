@@ -128,6 +128,7 @@ const supabase = {
       method: "POST",
       body: JSON.stringify(rows),
       headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      auth: true,
     }),
     delete: () => new DeleteBuilder(table),
   }),
