@@ -43,7 +43,7 @@ const NAV = [
 function AdminLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { isAuthed, email, logout } = useAdminAuth();
+  const { isAuthed, email, logout, hydrate, hydrated } = useAdminAuth();
   const products = useAdminData((s) => s.products);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -59,15 +59,24 @@ function AdminLayout() {
   const isLogin = pathname === "/admin/login";
 
   useEffect(() => {
-    if (!isAuthed && !isLogin) navigate({ to: "/admin/login" });
-  }, [isAuthed, isLogin, navigate]);
+    if (!hydrated) void hydrate();
+  }, [hydrated, hydrate]);
+
+  useEffect(() => {
+    if (hydrated && !isAuthed && !isLogin) navigate({ to: "/admin/login" });
+  }, [hydrated, isAuthed, isLogin, navigate]);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
+  const handleLogout = async () => {
+    await logout();
+    navigate({ to: "/admin/login" });
+  };
+
   if (isLogin) return <Outlet />;
-  if (!isAuthed) return null;
+  if (!hydrated || !isAuthed) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex">
