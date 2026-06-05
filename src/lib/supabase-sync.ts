@@ -12,28 +12,47 @@ import { useOrders, type Order } from "@/lib/orders-store";
 // Lightweight REST client for the public app data. It avoids Supabase Auth's
 // localStorage dependency at launch, which can throw in restricted iPadOS
 // Safari/WebView environments before React gets a chance to render.
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
 type DbResult<T = any> = { data: T | null; error: { message: string } | null };
 
-function headers(extra?: HeadersInit): HeadersInit {
+async function authToken(): Promise<string | null> {
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    return data.session?.access_token ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function headers(extra?: HeadersInit, requireAuth = false): Promise<HeadersInit> {
+  const token = requireAuth ? await authToken() : null;
   return {
     apikey: SUPABASE_KEY ?? "",
-    Authorization: `Bearer ${SUPABASE_KEY ?? ""}`,
+    Authorization: `Bearer ${token ?? SUPABASE_KEY ?? ""}`,
     "Content-Type": "application/json",
     ...extra,
   };
 }
 
-async function restFetch<T>(table: string, params: URLSearchParams, init?: RequestInit): Promise<DbResult<T>> {
+async function restFetch<T>(
+  table: string,
+  params: URLSearchParams,
+  init?: RequestInit & { auth?: boolean },
+): Promise<DbResult<T>> {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     return { data: null, error: { message: "Backend configuration missing" } };
   }
 
   try {
     const url = `${SUPABASE_URL}/rest/v1/${table}${params.size ? `?${params}` : ""}`;
-    const res = await fetch(url, { ...init, headers: headers(init?.headers) });
+    const res = await fetch(url, {
+      ...init,
+      headers: await headers(init?.headers, init?.auth ?? false),
+    });
     if (!res.ok) return { data: null, error: { message: await res.text() } };
     if (res.status === 204) return { data: null, error: null };
     return { data: (await res.json()) as T, error: null };
