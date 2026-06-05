@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { products as seedProducts, categories as seedCategories } from "./data";
 import { safeStorage } from "./safe-storage";
+import { supabase } from "@/integrations/supabase/client";
 
 export type ProductBadge = "Promo" | "Nouveau" | "Top";
 
