@@ -227,10 +227,7 @@ function AdminLayout() {
               </div>
               <span className="hidden sm:inline text-sm text-slate-600">{email}</span>
               <button
-                onClick={() => {
-                  logout();
-                  navigate({ to: "/admin/login" });
-                }}
+                onClick={handleLogout}
                 className="hidden sm:inline-flex items-center gap-1.5 text-sm text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
               >
                 <LogOut className="h-3.5 w-3.5" />
