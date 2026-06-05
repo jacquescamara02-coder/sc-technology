@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { products as seedProducts, categories as seedCategories } from "./data";
 import { safeStorage } from "./safe-storage";
+import { supabase } from "@/integrations/supabase/client";
 
 export type ProductBadge = "Promo" | "Nouveau" | "Top";
 
@@ -87,12 +88,14 @@ export interface AdminSettings {
 interface AdminAuth {
   isAuthed: boolean;
   email: string | null;
-  login: (email: string, password: string) => boolean;
-  logout: () => void;
+  hydrated: boolean;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  signup: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  hydrate: () => Promise<void>;
 }
 
 export const ADMIN_EMAIL = "admin@techshopgn.com";
-const ADMIN_PASSWORD = "Admin2024!";
 
 function slug(s: string) {
   return s
@@ -103,26 +106,77 @@ function slug(s: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export const useAdminAuth = create<AdminAuth>()(
-  persist(
-    (set) => ({
-      isAuthed: false,
-      email: null,
-      login: (email, password) => {
-        if (email.trim().toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-          set({ isAuthed: true, email });
-          return true;
-        }
-        return false;
-      },
-      logout: () => set({ isAuthed: false, email: null }),
-    }),
-    {
-      name: "techshop-admin-auth",
-      storage: createJSONStorage(() => safeStorage()),
-    },
-  ),
-);
+async function checkAdminRole(userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) return false;
+  return !!data;
+}
+
+export const useAdminAuth = create<AdminAuth>()((set) => ({
+  isAuthed: false,
+  email: null,
+  hydrated: false,
+  hydrate: async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user;
+      if (user && (await checkAdminRole(user.id))) {
+        set({ isAuthed: true, email: user.email ?? null, hydrated: true });
+      } else {
+        set({ isAuthed: false, email: null, hydrated: true });
+      }
+    } catch {
+      set({ hydrated: true });
+    }
+  },
+  login: async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error || !data.user) {
+      return { ok: false, error: error?.message ?? "Identifiants incorrects." };
+    }
+    const isAdmin = await checkAdminRole(data.user.id);
+    if (!isAdmin) {
+      await supabase.auth.signOut();
+      return { ok: false, error: "Ce compte n'a pas les droits administrateur." };
+    }
+    set({ isAuthed: true, email: data.user.email ?? email, hydrated: true });
+    return { ok: true };
+  },
+  signup: async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/admin/login` },
+    });
+    if (error) return { ok: false, error: error.message };
+    if (!data.user) return { ok: false, error: "Inscription impossible." };
+    return { ok: true };
+  },
+  logout: async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      /* ignore */
+    }
+    set({ isAuthed: false, email: null });
+  },
+}));
+
+if (typeof window !== "undefined") {
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_OUT" || !session) {
+      useAdminAuth.setState({ isAuthed: false, email: null });
+    }
+  });
+}
 
 interface AdminDataState {
   products: AdminProduct[];

@@ -43,7 +43,7 @@ const NAV = [
 function AdminLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { isAuthed, email, logout } = useAdminAuth();
+  const { isAuthed, email, logout, hydrate, hydrated } = useAdminAuth();
   const products = useAdminData((s) => s.products);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -59,15 +59,24 @@ function AdminLayout() {
   const isLogin = pathname === "/admin/login";
 
   useEffect(() => {
-    if (!isAuthed && !isLogin) navigate({ to: "/admin/login" });
-  }, [isAuthed, isLogin, navigate]);
+    if (!hydrated) void hydrate();
+  }, [hydrated, hydrate]);
+
+  useEffect(() => {
+    if (hydrated && !isAuthed && !isLogin) navigate({ to: "/admin/login" });
+  }, [hydrated, isAuthed, isLogin, navigate]);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
+  const handleLogout = async () => {
+    await logout();
+    navigate({ to: "/admin/login" });
+  };
+
   if (isLogin) return <Outlet />;
-  if (!isAuthed) return null;
+  if (!hydrated || !isAuthed) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex">
@@ -87,10 +96,7 @@ function AdminLayout() {
         </nav>
         <div className="px-3 py-4 border-t border-slate-200">
           <button
-            onClick={() => {
-              logout();
-              navigate({ to: "/admin/login" });
-            }}
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
           >
             <LogOut className="h-4 w-4" />
@@ -123,10 +129,7 @@ function AdminLayout() {
             </nav>
             <div className="px-3 py-4 border-t border-slate-200">
               <button
-                onClick={() => {
-                  logout();
-                  navigate({ to: "/admin/login" });
-                }}
+                onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
               >
                 <LogOut className="h-4 w-4" />
@@ -224,10 +227,7 @@ function AdminLayout() {
               </div>
               <span className="hidden sm:inline text-sm text-slate-600">{email}</span>
               <button
-                onClick={() => {
-                  logout();
-                  navigate({ to: "/admin/login" });
-                }}
+                onClick={handleLogout}
                 className="hidden sm:inline-flex items-center gap-1.5 text-sm text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
               >
                 <LogOut className="h-3.5 w-3.5" />
