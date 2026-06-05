@@ -110,7 +110,7 @@ class DeleteBuilder implements PromiseLike<DbResult<null>> {
   }
 
   execute() {
-    return restFetch<null>(this.table, this.params, { method: "DELETE" });
+    return restFetch<null>(this.table, this.params, { method: "DELETE", auth: true });
   }
 
   then<TResult1 = DbResult<null>, TResult2 = never>(
