@@ -85,7 +85,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className="dark">
-      <head><HeadContent /></head>
+      <head>
+        {/* Critical fallback: guarantees the page is never pure black/white,
+            even before the stylesheet loads or on very old browsers. */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html:
+              "html.dark,html.dark body{background-color:#16213f;background:radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 40%,#0b1220 100%);color:#f8fafc;min-height:100%;}html:not(.dark),html:not(.dark) body{background-color:#f8fafc;color:#0f172b;}",
+          }}
+        />
+        <HeadContent />
+      </head>
       <body>
         {children}
         <Scripts />
