@@ -53,7 +53,8 @@ workflows:
           ''')
           PY
       - name: Capacitor sync
-        script: npx cap sync ios
+        script: npx cap sync ios && sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = "1"/g' ios/App/App.xcodeproj/project.pbxproj
+
       - name: Verify native bundle
         script: test -s ios/App/App/public/index.html && test -d ios/App/App/public/assets
       - name: Install certificate
