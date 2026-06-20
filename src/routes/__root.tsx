@@ -19,6 +19,7 @@ import { ThemeApplier } from "@/components/ThemeApplier";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { useSupabaseSync } from "@/lib/supabase-sync";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 function NotFoundComponent() {
   return (
@@ -125,15 +126,18 @@ function RootComponent() {
   if (isAdmin) {
     return (
       <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
         <ThemeApplier />
         <div className="min-h-screen bg-slate-50 text-slate-900">
           <Outlet />
         </div>
-      </QueryClientProvider>
+      </ErrorBoundary>
+    </QueryClientProvider>
     );
   }
   return (
     <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
       <ThemeApplier />
       <SplashScreen />
       <AmbientBackground />
@@ -146,6 +150,7 @@ function RootComponent() {
         <BottomNav />
         <FloatingWhatsApp />
       </div>
+    </ErrorBoundary>
     </QueryClientProvider>
   );
 }

@@ -2,6 +2,19 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+const safeStorage = {
+  getItem: (key: string) => {
+    try { return window.localStorage.getItem(key); } catch { return null; }
+  },
+  setItem: (key: string, value: string) => {
+    try { window.localStorage.setItem(key, value); } catch {}
+  },
+  removeItem: (key: string) => {
+    try { window.localStorage.removeItem(key); } catch {}
+  },
+};
+
+
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
@@ -20,7 +33,7 @@ function createSupabaseClient() {
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      storage: typeof window !== 'undefined' ? safeStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
     }

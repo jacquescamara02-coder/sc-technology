@@ -235,18 +235,23 @@ function diffById<T extends { id: string }>(prev: T[], next: T[]) {
 // ------------ initial load + seed ------------
 
 async function loadFromSupabase() {
-  const [prodRes, catRes, subRes, heroRes, settingsRes, ordersRes, fbRes] =
-    await Promise.all([
-      supabase.from("products").select("*"),
-      supabase.from("categories").select("*").order("position"),
-      supabase.from("subcategories").select("*").order("position"),
-      supabase.from("hero_slides").select("*").order("position"),
-      supabase.from("app_settings").select("*").eq("id", 1).maybeSingle(),
-      supabase.from("orders").select("*").order("created_at", { ascending: false }),
-      supabase.from("facebook_posts").select("*").order("posted_at", { ascending: false }),
-    ]);
+  try {
+    const [prodRes, catRes, subRes, heroRes, settingsRes, ordersRes, fbRes] =
+      await Promise.all([
+        supabase.from("products").select("*"),
+        supabase.from("categories").select("*").order("position"),
+        supabase.from("subcategories").select("*").order("position"),
+        supabase.from("hero_slides").select("*").order("position"),
+        supabase.from("app_settings").select("*").eq("id", 1).maybeSingle(),
+        supabase.from("orders").select("*").order("created_at", { ascending: false }),
+        supabase.from("facebook_posts").select("*").order("posted_at", { ascending: false }),
+      ]);
 
-  return { prodRes, catRes, subRes, heroRes, settingsRes, ordersRes, fbRes };
+    return { prodRes, catRes, subRes, heroRes, settingsRes, ordersRes, fbRes };
+  } catch (err) {
+    console.error("[loadFromSupabase] erreur:", err);
+    throw err;
+  }
 }
 
 async function seedSupabase() {
