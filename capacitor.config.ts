@@ -6,6 +6,11 @@ const config: CapacitorConfig = {
   webDir: 'mobile-dist/client',
   server: {
     iosScheme: 'capacitor'
+  },
+  ios: {
+    backgroundColor: '#ffffff',
+    contentInset: 'always',
+    limitsNavigationsToAppBoundDomains: true
   }
 };
 
