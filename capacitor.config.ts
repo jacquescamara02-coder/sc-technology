@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'SC Technologie',
   webDir: 'mobile-dist/client',
   server: {
-    iosScheme: 'capacitor'
+    iosScheme: 'https'
   },
   ios: {
     backgroundColor: '#ffffff',
