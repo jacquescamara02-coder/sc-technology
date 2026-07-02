@@ -130,7 +130,9 @@ html, body {
 html.dark, html.dark body {
   color: #f8fafc;
   background-color: #16213f; /* solid fallback first — never pure black */
-  background: radial-gradient(ellipse at top, #1c3b7a 0%, #16213f 40%, #0b1220 100%);
+  background-image: radial-gradient(ellipse at top, #1c3b7a 0%, #16213f 40%, #0b1220 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 /* Admin keeps light background */
 html:not(.dark), html:not(.dark) body {
