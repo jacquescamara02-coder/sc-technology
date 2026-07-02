@@ -42,7 +42,7 @@ const bootRecoveryScript = `
       var isAdmin=location.pathname.indexOf("/admin")===0;
       html.style.backgroundColor=isAdmin?LIGHT_BG:DARK_BG;
       html.style.color=isAdmin?"#0f172b":"#f8fafc";
-      if(!isAdmin && !(" "+html.className+" ").indexOf(" dark ")>-1){html.className=(html.className?html.className+" ":"")+"dark";}
+      if(!isAdmin && (" "+html.className+" ").indexOf(" dark ")===-1){html.className=(html.className?html.className+" ":"")+"dark";}
     }catch(e){}
   }
   function hasVisibleApp(){
