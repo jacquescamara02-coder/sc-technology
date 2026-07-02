@@ -21,6 +21,58 @@ import { useSupabaseSync } from "@/lib/supabase-sync";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
+const criticalBootCss = `
+  html{min-height:100%;background-color:#16213f;color:#f8fafc;color-scheme:dark;}
+  body{min-height:100%;margin:0;background-color:#16213f;color:#f8fafc;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  html.dark,html.dark body{background-color:#16213f;color:#f8fafc;}
+  @supports (background: radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 40%,#0b1220 100%)){html.dark,html.dark body{background:#16213f;background-image:radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 40%,#0b1220 100%);}}
+  html:not(.dark),html:not(.dark) body{background-color:#f8fafc;color:#0f172b;color-scheme:light;}
+  body:empty::before{content:"SC TECHNOLOGIE";display:grid;place-items:center;min-height:100vh;color:#f8fafc;font-weight:800;letter-spacing:.08em;}
+  a{color:inherit;text-decoration:none;}img,svg{max-width:100%;}button,input,textarea,select{font:inherit;}header{position:sticky;top:0;z-index:40;}main{max-width:768px;margin-inline:auto;}section{margin-block:1.25rem;}
+  .sc-noscript{max-width:30rem;margin:18vh auto;padding:1.5rem;text-align:center;border:1px solid rgba(148,163,184,.25);border-radius:1rem;background:rgba(15,23,42,.72);box-shadow:0 20px 60px rgba(0,0,0,.35);}
+  .sc-noscript a{display:inline-flex;margin-top:1rem;padding:.65rem 1rem;border-radius:999px;background:#0066ff;color:#fff;font-weight:700;}
+`;
+
+const bootRecoveryScript = `
+(function(){
+  var DARK_BG="#16213f", LIGHT_BG="#f8fafc";
+  function applyBase(){
+    try{
+      var html=document.documentElement;
+      var isAdmin=location.pathname.indexOf("/admin")===0;
+      html.style.backgroundColor=isAdmin?LIGHT_BG:DARK_BG;
+      html.style.color=isAdmin?"#0f172b":"#f8fafc";
+      if(!isAdmin && !(" "+html.className+" ").indexOf(" dark ")>-1){html.className=(html.className?html.className+" ":"")+"dark";}
+    }catch(e){}
+  }
+  function hasVisibleApp(){
+    if(!document.body) return true;
+    if(document.querySelector("[data-sc-app-ready],main,header")) return true;
+    var text=(document.body.innerText||document.body.textContent||"").replace(/\s+/g," ").trim();
+    return text.length>30;
+  }
+  function recover(){
+    setTimeout(function(){
+      try{
+        if(!document.body || hasVisibleApp()) return;
+        document.body.style.margin="0";
+        document.body.style.background=DARK_BG;
+        document.body.style.color="#f8fafc";
+        document.body.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#16213f;color:#f8fafc"><section style="max-width:420px;text-align:center"><img src="/app-icon.png" alt="SC TECHNOLOGIE" width="72" height="72" style="border-radius:18px;background:white;padding:6px;margin:0 auto 16px;box-shadow:0 10px 35px rgba(0,102,255,.35)"><h1 style="font-size:22px;margin:0 0 8px">SC TECHNOLOGIE</h1><p style="margin:0 0 18px;color:#cbd5e1">Le chargement a été sécurisé. Touchez le bouton ci-dessous pour relancer la page.</p><button onclick="location.reload()" style="border:0;border-radius:999px;background:#0066ff;color:white;padding:12px 18px;font-weight:800;cursor:pointer">Recharger la boutique</button></section></main>';
+      }catch(e){}
+    },120);
+  }
+  applyBase();
+  window.addEventListener("error",recover,true);
+  window.addEventListener("unhandledrejection",recover,true);
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",function(){applyBase();setTimeout(recover,4500);},{once:true});
+  }else{
+    setTimeout(recover,4500);
+  }
+})();
+`;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -91,13 +143,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
             even before the stylesheet loads or on very old browsers. */}
         <style
           dangerouslySetInnerHTML={{
-            __html:
-              "html.dark,html.dark body{background-color:#16213f;background:radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 40%,#0b1220 100%);color:#f8fafc;min-height:100%;}html:not(.dark),html:not(.dark) body{background-color:#f8fafc;color:#0f172b;}",
+            __html: criticalBootCss,
           }}
         />
+        <script dangerouslySetInnerHTML={{ __html: bootRecoveryScript }} />
         <HeadContent />
       </head>
       <body>
+        <noscript>
+          <div className="sc-noscript">
+            <h1>SC TECHNOLOGIE</h1>
+            <p>Activez JavaScript ou rechargez la page pour ouvrir correctement la boutique.</p>
+            <a href="/">Recharger la boutique</a>
+          </div>
+        </noscript>
         {children}
         <Scripts />
       </body>
@@ -141,7 +200,7 @@ function RootComponent() {
       <ThemeApplier />
       <SplashScreen />
       <AmbientBackground />
-      <div className="relative z-10 min-h-screen pb-20">
+      <div data-sc-app-ready="true" className="relative z-10 min-h-screen pb-20">
         <TopHeader />
         <main className="mx-auto max-w-screen-md animate-[fade-in_0.3s_ease-out]">
           <Outlet />
