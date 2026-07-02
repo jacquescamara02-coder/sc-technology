@@ -8,9 +8,17 @@ export function AmbientBackground() {
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      style={{ backgroundColor: "#16213f" }}
     >
       {/* Base deep gradient (not pure black) */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#1c3b7a_0%,#16213f_45%,#0b1220_100%)]" />
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#1c3b7a_0%,#16213f_45%,#0b1220_100%)]"
+        style={{
+          backgroundColor: "#16213f",
+          backgroundImage:
+            "radial-gradient(ellipse at top, #1c3b7a 0%, #16213f 45%, #0b1220 100%)",
+        }}
+      />
 
       {/* Animated color blobs */}
       <div className="ambient-blob ambient-blob-1" />
@@ -32,7 +40,12 @@ export function AmbientBackground() {
       />
 
       {/* Top vignette glow */}
-      <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(0,102,255,0.35),transparent_70%)] blur-2xl" />
+      <div
+        className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(0,102,255,0.35),transparent_70%)] blur-2xl"
+        style={{
+          backgroundImage: "radial-gradient(closest-side, rgba(0,102,255,0.35), transparent 70%)",
+        }}
+      />
 
       {/* Soft bottom vignette (keeps it readable, not pure black) */}
       <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-[#07101f]/80 to-transparent" />
