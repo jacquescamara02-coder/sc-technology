@@ -48,7 +48,7 @@ const bootRecoveryScript = `
   function hasVisibleApp(){
     if(!document.body) return true;
     if(document.querySelector("[data-sc-app-ready],main,header")) return true;
-    var text=(document.body.innerText||document.body.textContent||"").replace(/\s+/g," ").trim();
+    var text=(document.body.innerText||document.body.textContent||"").replace(/\\s+/g," ").trim();
     return text.length>30;
   }
   function recover(){
