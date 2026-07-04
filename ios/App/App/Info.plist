@@ -35,7 +35,6 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>
-		<string>telephony</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
