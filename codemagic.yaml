@@ -1,4 +1,4 @@
-workflows:
+
   ios-workflow:
     name: SC Technologie iOS
     max_build_duration: 60
@@ -93,6 +93,14 @@ workflows:
             -t ios \
             -u "$APP_STORE_EMAIL" \
             -p "$APP_STORE_PASSWORD"
+       
+      - name: Commit new build number
+        script: |
+          git config user.email "codemagic@ci.local"
+          git config user.name "Codemagic CI"
+          git add ios/App/App.xcodeproj/project.pbxproj
+          git commit -m "ci: bump build number to $NEW [skip ci]" || echo "Nothing to commit"
+          git push origin main || echo "Push failed, check GitHub write permissions"
     artifacts:
       - build/App.xcarchive
       - build/App.ipa
