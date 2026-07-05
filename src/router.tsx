@@ -6,7 +6,7 @@ function FallbackError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   if (typeof console !== "undefined") console.error(error);
   return (
-    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1.5rem", background: "#0b1220", color: "#fff", fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1.5rem", background: "#16213f", color: "#fff", fontFamily: "system-ui, sans-serif" }}>
       <div style={{ maxWidth: "28rem", textAlign: "center" }}>
         <h1 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>Une erreur est survenue</h1>
         <p style={{ color: "#94a3b8", marginBottom: "1.25rem", fontSize: "0.9rem" }}>
@@ -30,7 +30,7 @@ function FallbackError({ error, reset }: { error: Error; reset: () => void }) {
 
 function FallbackNotFound() {
   return (
-    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1.5rem", background: "#0b1220", color: "#fff", fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1.5rem", background: "#16213f", color: "#fff", fontFamily: "system-ui, sans-serif" }}>
       <div style={{ textAlign: "center" }}>
         <h1 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>404 — Page introuvable</h1>
         <a href="/" style={{ color: "#60a5fa" }}>← Retour à l'accueil</a>
