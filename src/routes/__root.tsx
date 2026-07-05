@@ -18,6 +18,7 @@ import { Footer } from "@/components/Footer";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { useSupabaseSync } from "@/lib/supabase-sync";
+import { useSyncStatus } from "@/lib/sync-status";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
