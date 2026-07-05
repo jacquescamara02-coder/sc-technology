@@ -79,7 +79,7 @@ const bootRecoveryScript = `
       var app=document.querySelector("[data-sc-app-ready]");
       if(!app) return false;
       var rect=app.getBoundingClientRect(), style=getComputedStyle(app), text=(app.innerText||app.textContent||"").replace(/\\s+/g," ").trim();
-      return rect.height>80 && rect.width>220 && style.display!=="none" && style.visibility!=="hidden" && text.length>30;
+      return rect.height>80 && rect.width>220 && style.display!=="none" && style.visibility!=="hidden" && (location.pathname.indexOf("/admin")===0 || text.length>30);
     }catch(e){return false;}
   }
   function hasVisibleApp(){
@@ -215,6 +215,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <noscript>
+          <style>{"#sc-static-boot{display:none!important}"}</style>
           <div className="sc-noscript">
             <h1>SC TECHNOLOGIE</h1>
             <p>Activez JavaScript ou rechargez la page pour ouvrir correctement la boutique.</p>
