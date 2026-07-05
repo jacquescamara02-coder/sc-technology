@@ -114,6 +114,31 @@ const bootRecoveryScript = `
       location.reload();
     }catch(e){}
   },true);
+  // Kill-switch: unregister any stale service worker and clear its caches so
+  // returning visitors never see an outdated version of the site.
+  try{
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        regs.forEach(function(reg){
+          try{
+            var url=(reg.active&&reg.active.scriptURL)||"";
+            // Preserve messaging workers (Firebase, OneSignal) — only kill app shells.
+            if(/firebase-messaging|onesignal/i.test(url)) return;
+            reg.unregister();
+          }catch(e){}
+        });
+      }).catch(function(){});
+    }
+    if(typeof caches!=="undefined" && caches.keys){
+      caches.keys().then(function(keys){
+        keys.forEach(function(k){
+          if(/workbox|precache|runtime|sc-cache|vite/i.test(k)){
+            try{caches.delete(k);}catch(e){}
+          }
+        });
+      }).catch(function(){});
+    }
+  }catch(e){}
   applyBase();
   window.addEventListener("error",recover,true);
   window.addEventListener("unhandledrejection",recover,true);
