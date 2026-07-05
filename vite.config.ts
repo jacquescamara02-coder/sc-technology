@@ -12,7 +12,7 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
     spa: { enabled: true },
-    prerender: { enabled: false },
+    prerender: { enabled: false, failOnError: false, concurrency: 1 },
     pages: [],
   },
   vite: {
