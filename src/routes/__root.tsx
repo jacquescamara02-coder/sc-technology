@@ -203,6 +203,17 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <div id="sc-static-boot" role="status" aria-live="polite">
+          <div className="sc-static-boot-card">
+            <img className="sc-static-boot-logo" src="/app-icon.png" alt="SC TECHNOLOGIE" width="72" height="72" />
+            <div className="sc-static-boot-loader" aria-hidden="true" />
+            <h1 className="sc-static-boot-title">SC TECHNOLOGIE</h1>
+            <p className="sc-static-boot-text">Chargement sécurisé de la boutique…</p>
+            <a className="sc-static-boot-action" href="/" data-sc-reload style={{ display: "none" }}>
+              Recharger la boutique
+            </a>
+          </div>
+        </div>
         <noscript>
           <div className="sc-noscript">
             <h1>SC TECHNOLOGIE</h1>
