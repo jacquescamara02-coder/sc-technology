@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { ThemePicker } from "@/components/ThemePicker";
 import { useOrders } from "@/lib/orders-store";
 import { safeStorage } from "@/lib/safe-storage";
+import { useAdminAuth } from "@/lib/admin-store";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/profil")({
   component: ProfilePage,
