@@ -251,7 +251,7 @@ function RootComponent() {
       <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
         <ThemeApplier />
-        <div className="min-h-screen bg-slate-50 text-slate-900">
+        <div data-sc-app-ready="true" className="min-h-screen bg-slate-50 text-slate-900">
           <Outlet />
         </div>
       </ErrorBoundary>
