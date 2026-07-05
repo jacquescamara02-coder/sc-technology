@@ -5,7 +5,7 @@ workflows:
     max_build_duration: 60
     environment:
       xcode: latest
-      node: latest
+      node: 24.15.0
       groups:
         - ios_credentials
     scripts:
