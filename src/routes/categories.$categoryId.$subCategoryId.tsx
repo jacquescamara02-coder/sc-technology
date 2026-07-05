@@ -5,6 +5,8 @@ import {
   useStorefrontSubcategory,
   useProductsBySub,
 } from "@/lib/storefront";
+import { useSyncStatus } from "@/lib/sync-status";
+import { Loader2 } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductCard } from "@/components/ProductCard";
 import { Search, SlidersHorizontal, X, ArrowUpDown } from "lucide-react";
