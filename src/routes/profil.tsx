@@ -129,7 +129,9 @@ function ProfilePage() {
     {
       title: "Boutique",
       items: [
-        { icon: Settings, label: "Espace administrateur", to: "/admin" },
+        ...(adminHydrated && isAdmin
+          ? [{ icon: Settings, label: "Espace administrateur", to: "/admin" } as Item]
+          : []),
         { icon: Facebook, label: "Page Facebook", href: "https://fb.me/8TeLA81zv" },
         { icon: MessageCircle, label: "Contacter sur WhatsApp", href: "https://wa.me/224610953838" },
       ],
