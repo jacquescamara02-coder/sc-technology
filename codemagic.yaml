@@ -13,10 +13,10 @@ workflows:
         script: npm install
       - name: Build web
         script: |
-        npx vite build --mode development
-        rm -rf mobile-dist/client
-        mkdir -p mobile-dist
-        cp -r dist/client mobile-dist/client
+          npx vite build --mode development
+          rm -rf mobile-dist/client
+          mkdir -p mobile-dist
+          cp -r dist/client mobile-dist/client
       - name: Create native index.html
         script: |
           python3 - <<'PY'
