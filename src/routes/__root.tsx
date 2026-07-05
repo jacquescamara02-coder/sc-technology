@@ -118,24 +118,32 @@ const bootRecoveryScript = `
   // returning visitors never see an outdated version of the site.
   try{
     if("serviceWorker" in navigator){
-      navigator.serviceWorker.getRegistrations().then(function(regs){
-        regs.forEach(function(reg){
-          try{
-            var url=(reg.active&&reg.active.scriptURL)||"";
-            // Preserve messaging workers (Firebase, OneSignal) — only kill app shells.
-            if(/firebase-messaging|onesignal/i.test(url)) return;
-            reg.unregister();
-          }catch(e){}
-        });
-      }).catch(function(){});
+      var shouldSweep=!sessionStorage.getItem("sc-sw-cleanup-v2") || !!navigator.serviceWorker.controller;
+      if(shouldSweep){
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          var appRegs=0;
+          regs.forEach(function(reg){
+            try{
+              var url=(reg.active&&reg.active.scriptURL)||(reg.waiting&&reg.waiting.scriptURL)||(reg.installing&&reg.installing.scriptURL)||"";
+              // Preserve messaging workers (Firebase, OneSignal) — only kill app shells.
+              if(/firebase-messaging|onesignal/i.test(url)) return;
+              appRegs++;
+              reg.unregister();
+            }catch(e){}
+          });
+          if(!appRegs){try{sessionStorage.setItem("sc-sw-cleanup-v2","1");}catch(e){}}
+        }).catch(function(){});
+      }
     }
-    if(typeof caches!=="undefined" && caches.keys){
+    if(typeof caches!=="undefined" && caches.keys && (!sessionStorage.getItem("sc-cache-cleanup-v2") || (navigator.serviceWorker&&navigator.serviceWorker.controller))){
       caches.keys().then(function(keys){
+        var deletions=[];
         keys.forEach(function(k){
           if(/workbox|precache|runtime|sc-cache|vite/i.test(k)){
-            try{caches.delete(k);}catch(e){}
+            try{deletions.push(caches.delete(k));}catch(e){}
           }
         });
+        Promise.allSettled(deletions).then(function(){try{sessionStorage.setItem("sc-cache-cleanup-v2","1");}catch(e){}});
       }).catch(function(){});
     }
   }catch(e){}
@@ -261,6 +269,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
+  const initialLoaded = useSyncStatus((s) => s.initialLoaded);
   useSupabaseSync();
 
   useEffect(() => {
@@ -293,7 +302,7 @@ function RootComponent() {
       <ThemeApplier />
       <SplashScreen />
       <AmbientBackground />
-      <div data-sc-app-ready="true" className="relative z-10 min-h-screen pb-20">
+      <div data-sc-app-ready={initialLoaded ? "true" : undefined} className="relative z-10 min-h-screen pb-20">
         <TopHeader />
         <main className="mx-auto max-w-screen-md animate-[fade-in_0.3s_ease-out]">
           <Outlet />

@@ -235,24 +235,63 @@ function diffById<T extends { id: string }>(prev: T[], next: T[]) {
 
 // ------------ initial load + seed ------------
 
-async function loadFromSupabase() {
+async function loadStorefrontFromSupabase() {
   try {
-    const [prodRes, catRes, subRes, heroRes, settingsRes, ordersRes, fbRes] =
+    const [prodRes, catRes, subRes, heroRes, settingsRes] =
       await Promise.all([
         supabase.from("products").select("*"),
         supabase.from("categories").select("*").order("position"),
         supabase.from("subcategories").select("*").order("position"),
         supabase.from("hero_slides").select("*").order("position"),
         supabase.from("app_settings").select("*").eq("id", 1).maybeSingle(),
+      ]);
+
+    return { prodRes, catRes, subRes, heroRes, settingsRes };
+  } catch (err) {
+    console.error("[loadStorefrontFromSupabase] erreur:", err);
+    throw err;
+  }
+}
+
+async function loadSecondaryFromSupabase() {
+  try {
+    const [ordersRes, fbRes] =
+      await Promise.all([
         supabase.from("orders").select("*").order("created_at", { ascending: false }),
         supabase.from("facebook_posts").select("*").order("posted_at", { ascending: false }),
       ]);
 
-    return { prodRes, catRes, subRes, heroRes, settingsRes, ordersRes, fbRes };
+    return { ordersRes, fbRes };
   } catch (err) {
-    console.error("[loadFromSupabase] erreur:", err);
+    console.error("[loadSecondaryFromSupabase] erreur:", err);
     throw err;
   }
+}
+
+function rowsToFacebookPosts(rows: any[] | null | undefined): FacebookPost[] {
+  return (rows ?? []).map((p: any) => ({
+    id: p.id as string,
+    productId: p.product_id as string,
+    productName: p.product_name as string,
+    productImage: (p.product_image as string | null) ?? "",
+    caption: (p.caption as string) ?? "",
+    date: p.posted_at as string,
+    status: (p.status as FacebookPost["status"]) ?? "success",
+  }));
+}
+
+function rowsToOrders(rows: any[] | null | undefined): Order[] {
+  return (rows ?? []).map((o: any) => ({
+    id: o.id as string,
+    createdAt: new Date(o.created_at as string).getTime(),
+    status: o.status as Order["status"],
+    items: (o.items as Order["items"]) ?? [],
+    subtotal: Number(o.subtotal),
+    tva: Number(o.tva),
+    total: Number(o.total),
+    delivery: o.delivery as Order["delivery"],
+    payment: o.payment as Order["payment"],
+  }));
 }
 
 async function seedSupabase() {
@@ -315,8 +354,8 @@ export function useSupabaseSync() {
 
     (async () => {
       try {
-        const { prodRes, catRes, subRes, heroRes, settingsRes, ordersRes, fbRes } =
-          await loadFromSupabase();
+        const { prodRes, catRes, subRes, heroRes, settingsRes } =
+          await loadStorefrontFromSupabase();
 
         const isEmpty =
           (catRes.data?.length ?? 0) === 0 &&
@@ -357,44 +396,29 @@ export function useSupabaseSync() {
             ...remoteData,
             heroSlides,
           };
-          const facebookPosts: FacebookPost[] = (fbRes.data ?? []).map((p: any) => ({
-            id: p.id as string,
-            productId: p.product_id as string,
-            productName: p.product_name as string,
-            productImage: (p.product_image as string | null) ?? "",
-            caption: (p.caption as string) ?? "",
-            date: p.posted_at as string,
-            status: (p.status as FacebookPost["status"]) ?? "success",
-          }));
-
           useAdminData.setState({
             products,
             categories: cats,
             settings,
-            facebookPosts,
           });
         }
 
-        // orders
-        const orders: Order[] = (ordersRes.data ?? []).map((o: any) => ({
-          id: o.id as string,
-          createdAt: new Date(o.created_at as string).getTime(),
-          status: o.status as Order["status"],
-          items: (o.items as Order["items"]) ?? [],
-          subtotal: Number(o.subtotal),
-          tva: Number(o.tva),
-          total: Number(o.total),
-          delivery: o.delivery as Order["delivery"],
-          payment: o.payment as Order["payment"],
-        }));
-        useOrders.setState({ orders });
+        // Storefront is now current: let the UI render before slower secondary
+        // data (orders/facebook history) finishes loading.
+        useSyncStatus.getState().markLoaded();
 
+        try {
+          const { ordersRes, fbRes } = await loadSecondaryFromSupabase();
+          useAdminData.setState({ facebookPosts: rowsToFacebookPosts(fbRes.data) });
+          useOrders.setState({ orders: rowsToOrders(ordersRes.data) });
+        } catch (secondaryErr) {
+          console.error("[supabase-sync] secondary load failed", secondaryErr);
+        }
 
         // snapshot AFTER applying remote so first diff doesn't echo back
         prevAdminRef.current = useAdminData.getState();
         prevOrdersRef.current = useOrders.getState();
         inited.current = true;
-        useSyncStatus.getState().markLoaded();
       } catch (err) {
         console.error("[supabase-sync] initial load failed", err);
         // still allow writes to attempt sync

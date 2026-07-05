@@ -7,5 +7,5 @@ interface SyncStatusState {
 
 export const useSyncStatus = create<SyncStatusState>((set) => ({
   initialLoaded: false,
-  markLoaded: () => set({ initialLoaded: true }),
+  markLoaded: () => set((state) => (state.initialLoaded ? state : { initialLoaded: true })),
 }));
