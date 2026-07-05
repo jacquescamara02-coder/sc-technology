@@ -340,6 +340,31 @@ async function seedSupabase() {
 // ------------ React hook ------------
 
 let bootstrapped = false;
+let initialLoadPromise: Promise<void> | null = null;
+
+export function isInitialSyncLoaded() {
+  return useSyncStatus.getState().initialLoaded;
+}
+
+export function waitForInitialSync(timeoutMs = 2_200): Promise<boolean> {
+  if (useSyncStatus.getState().initialLoaded) return Promise.resolve(true);
+  if (typeof window === "undefined") return Promise.resolve(false);
+
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (loaded: boolean) => {
+      if (done) return;
+      done = true;
+      unsubscribe();
+      window.clearTimeout(timer);
+      resolve(loaded);
+    };
+    const unsubscribe = useSyncStatus.subscribe((state) => {
+      if (state.initialLoaded) finish(true);
+    });
+    const timer = window.setTimeout(() => finish(useSyncStatus.getState().initialLoaded), timeoutMs);
+  });
+}
 
 export function useSupabaseSync() {
   const inited = useRef(false);
@@ -352,7 +377,7 @@ export function useSupabaseSync() {
     bootstrapped = true;
     inited.current = false;
 
-    (async () => {
+    initialLoadPromise = (async () => {
       try {
         const { prodRes, catRes, subRes, heroRes, settingsRes } =
           await loadStorefrontFromSupabase();

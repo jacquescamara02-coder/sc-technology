@@ -17,7 +17,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { Footer } from "@/components/Footer";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { AmbientBackground } from "@/components/AmbientBackground";
-import { useSupabaseSync } from "@/lib/supabase-sync";
+import { isInitialSyncLoaded, useSupabaseSync, waitForInitialSync } from "@/lib/supabase-sync";
 import { useSyncStatus } from "@/lib/sync-status";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -91,7 +91,9 @@ const bootRecoveryScript = `
   }
   function watchReady(){
     try{
+      var visibleWait=Number(document.documentElement.getAttribute("data-sc-boot-wait")||"0");
       if(appLooksVisible()){markReady();return;}
+      if(Date.now()-started>visibleWait){markReady();return;}
       if(Date.now()-started>6500){setBootText("SC TECHNOLOGIE","Le chargement prend trop de temps. Touchez le bouton ci-dessous pour relancer la boutique.",true);return;}
       setTimeout(watchReady,180);
     }catch(e){}
@@ -272,6 +274,21 @@ function RootComponent() {
   const isAdmin = pathname.startsWith("/admin");
   const initialLoaded = useSyncStatus((s) => s.initialLoaded);
   useSupabaseSync();
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    let cancelled = false;
+    document.documentElement.setAttribute("data-sc-boot-wait", isInitialSyncLoaded() ? "0" : "2200");
+    void waitForInitialSync(2_200).then(() => {
+      if (cancelled) return;
+      document.documentElement.classList.add("sc-app-ready");
+      const boot = document.getElementById("sc-static-boot");
+      if (boot) boot.setAttribute("aria-hidden", "true");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
