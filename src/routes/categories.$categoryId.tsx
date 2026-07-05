@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { Link, createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import {
   useStorefrontCategory,
   useStorefrontProducts,
@@ -68,15 +68,10 @@ function SubCategoriesPage() {
               (p) => p.category === cat.id && p.subcategory === sub.id,
             ).length;
             return (
-              <a
+              <Link
                 key={sub.id}
-                href={`/categories/${cat.id}/${sub.id}`}
-                onClick={(event) => {
-                  event.preventDefault();
-                  window.location.assign(
-                    new URL(`/categories/${cat.id}/${sub.id}`, window.location.origin).toString(),
-                  );
-                }}
+                to="/categories/$categoryId/$subCategoryId"
+                params={{ categoryId: cat.id, subCategoryId: sub.id }}
                 className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/40 active:scale-[0.99]"
               >
                 <div className="text-sm font-semibold text-foreground">{sub.name}</div>
@@ -84,7 +79,7 @@ function SubCategoriesPage() {
                 <div className="mt-auto inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
                   Voir <ChevronRight className="h-3 w-3" />
                 </div>
-              </a>
+              </Link>
             );
           })}
         </div>
