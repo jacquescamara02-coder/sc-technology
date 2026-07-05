@@ -38,7 +38,7 @@ function CartPage() {
       <div className="space-y-2.5">
         {items.map(({ product, qty }) => (
           <div key={product.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3">
-            <div className="h-20 w-20 shrink-0 rounded-xl" style={{ backgroundImage: product.image }} />
+            <div className="h-20 w-20 shrink-0 rounded-xl bg-cover bg-center bg-surface" style={{ backgroundImage: product.image }} />
             <div className="flex flex-1 flex-col">
               <div className="flex items-start justify-between gap-2">
                 <div>
