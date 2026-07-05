@@ -12,6 +12,7 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
     spa: { enabled: true },
+    prerender: { concurrency: 1 },
   },
   vite: {
     optimizeDeps: {
