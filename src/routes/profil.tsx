@@ -84,6 +84,12 @@ function ProfilePage() {
   const ordersCount = useOrders((s) => s.orders.length);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState<null | "edit" | "address" | "help">(null);
+  const isAdmin = useAdminAuth((s) => s.isAuthed);
+  const adminHydrated = useAdminAuth((s) => s.hydrated);
+  const hydrateAdmin = useAdminAuth((s) => s.hydrate);
+  useEffect(() => {
+    if (!adminHydrated) void hydrateAdmin();
+  }, [adminHydrated, hydrateAdmin]);
 
   const initials = profile.fullName
     .split(" ")
