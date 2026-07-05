@@ -3,8 +3,9 @@ import {
   useStorefrontCategory,
   useStorefrontProducts,
 } from "@/lib/storefront";
+import { useSyncStatus } from "@/lib/sync-status";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/categories/$categoryId")({
   component: SubCategoriesPage,
@@ -15,8 +16,17 @@ function SubCategoriesPage() {
   const location = useLocation();
   const cat = useStorefrontCategory(categoryId);
   const allProducts = useStorefrontProducts();
+  const initialLoaded = useSyncStatus((s) => s.initialLoaded);
 
   if (!cat) {
+    if (!initialLoaded) {
+      return (
+        <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 px-4 text-center text-sm text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <p>Chargement de la catégorie…</p>
+        </div>
+      );
+    }
     return (
       <div className="px-4 py-10 text-center text-sm text-muted-foreground">
         Catégorie introuvable.
