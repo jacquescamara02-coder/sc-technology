@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { ThemePicker } from "@/components/ThemePicker";
 import { useOrders } from "@/lib/orders-store";
 import { safeStorage } from "@/lib/safe-storage";
+import { useAdminAuth } from "@/lib/admin-store";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/profil")({
   component: ProfilePage,
@@ -82,6 +84,12 @@ function ProfilePage() {
   const ordersCount = useOrders((s) => s.orders.length);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState<null | "edit" | "address" | "help">(null);
+  const isAdmin = useAdminAuth((s) => s.isAuthed);
+  const adminHydrated = useAdminAuth((s) => s.hydrated);
+  const hydrateAdmin = useAdminAuth((s) => s.hydrate);
+  useEffect(() => {
+    if (!adminHydrated) void hydrateAdmin();
+  }, [adminHydrated, hydrateAdmin]);
 
   const initials = profile.fullName
     .split(" ")
@@ -121,7 +129,9 @@ function ProfilePage() {
     {
       title: "Boutique",
       items: [
-        { icon: Settings, label: "Espace administrateur", to: "/admin" },
+        ...(adminHydrated && isAdmin
+          ? [{ icon: Settings, label: "Espace administrateur", to: "/admin" } as Item]
+          : []),
         { icon: Facebook, label: "Page Facebook", href: "https://fb.me/8TeLA81zv" },
         { icon: MessageCircle, label: "Contacter sur WhatsApp", href: "https://wa.me/224610953838" },
       ],

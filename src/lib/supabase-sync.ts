@@ -8,6 +8,7 @@ import {
   type FacebookPost,
 } from "@/lib/admin-store";
 import { useOrders, type Order } from "@/lib/orders-store";
+import { useSyncStatus } from "@/lib/sync-status";
 
 // Lightweight REST client for the public app data. It avoids Supabase Auth's
 // localStorage dependency at launch, which can throw in restricted iPadOS
@@ -393,12 +394,14 @@ export function useSupabaseSync() {
         prevAdminRef.current = useAdminData.getState();
         prevOrdersRef.current = useOrders.getState();
         inited.current = true;
+        useSyncStatus.getState().markLoaded();
       } catch (err) {
         console.error("[supabase-sync] initial load failed", err);
         // still allow writes to attempt sync
         prevAdminRef.current = useAdminData.getState();
         prevOrdersRef.current = useOrders.getState();
         inited.current = true;
+        useSyncStatus.getState().markLoaded();
       }
     })();
 

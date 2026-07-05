@@ -5,6 +5,8 @@ import {
   useStorefrontSubcategory,
   useProductsBySub,
 } from "@/lib/storefront";
+import { useSyncStatus } from "@/lib/sync-status";
+import { Loader2 } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductCard } from "@/components/ProductCard";
 import { Search, SlidersHorizontal, X, ArrowUpDown } from "lucide-react";
@@ -57,7 +59,17 @@ function ProductsListPage() {
     return list;
   }, [all, query, selectedBrands, priceMax, inStockOnly, sort]);
 
+  const initialLoaded = useSyncStatus((s) => s.initialLoaded);
+
   if (!cat || !sub) {
+    if (!initialLoaded) {
+      return (
+        <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 px-4 text-center text-sm text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <p>Chargement de la catégorie…</p>
+        </div>
+      );
+    }
     return (
       <div className="px-4 py-10 text-center text-sm text-muted-foreground">
         Sous-catégorie introuvable.
