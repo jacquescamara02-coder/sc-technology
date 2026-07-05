@@ -71,7 +71,7 @@ const bootRecoveryScript = `
       var html=document.documentElement;
       if((" "+html.className+" ").indexOf(" sc-app-ready ")===-1){html.className=(html.className?html.className+" ":"")+"sc-app-ready";}
       var node=bootNode();
-      if(node){setTimeout(function(){try{node.parentNode&&node.parentNode.removeChild(node);}catch(e){}},320);}
+      if(node){node.setAttribute("aria-hidden","true");}
     }catch(e){}
   }
   function appLooksVisible(){
