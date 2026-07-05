@@ -29,13 +29,23 @@ const criticalBootCss = `
   html:not(.dark),html:not(.dark) body{background-color:#f8fafc;color:#0f172b;color-scheme:light;}
   body:empty::before{content:"SC TECHNOLOGIE";display:grid;place-items:center;min-height:100vh;color:#f8fafc;font-weight:800;letter-spacing:.08em;}
   a{color:inherit;text-decoration:none;}img,svg{max-width:100%;}button,input,textarea,select{font:inherit;}header{position:sticky;top:0;z-index:40;}main{max-width:768px;margin-inline:auto;}section{margin-block:1.25rem;}
+  #sc-static-boot{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;background:#16213f;background-image:radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 45%,#0b1220 100%);color:#f8fafc;text-align:center;transition:opacity .24s ease,visibility .24s ease;}
+  html.sc-app-ready #sc-static-boot{opacity:0;visibility:hidden;pointer-events:none;}
+  .sc-static-boot-card{width:min(100%,28rem);}
+  .sc-static-boot-logo{width:72px;height:72px;margin:0 auto 16px;border-radius:18px;background:#fff;padding:6px;object-fit:contain;box-shadow:0 14px 40px rgba(0,102,255,.35);}
+  .sc-static-boot-title{margin:0 0 8px;font-size:22px;line-height:1.15;font-weight:900;letter-spacing:.02em;}
+  .sc-static-boot-text{margin:0 auto 18px;max-width:24rem;color:#cbd5e1;font-size:15px;line-height:1.5;}
+  .sc-static-boot-loader{width:38px;height:38px;margin:0 auto 18px;border-radius:999px;border:3px solid rgba(248,250,252,.22);border-top-color:#4da3ff;animation:sc-spin .8s linear infinite;}
+  .sc-static-boot-action{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:#0066ff;color:#fff;padding:12px 18px;font-weight:800;box-shadow:0 10px 30px rgba(0,102,255,.35);}
+  @keyframes sc-spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){#sc-static-boot{transition:none}.sc-static-boot-loader{animation:none}}
   .sc-noscript{max-width:30rem;margin:18vh auto;padding:1.5rem;text-align:center;border:1px solid rgba(148,163,184,.25);border-radius:1rem;background:rgba(15,23,42,.72);box-shadow:0 20px 60px rgba(0,0,0,.35);}
   .sc-noscript a{display:inline-flex;margin-top:1rem;padding:.65rem 1rem;border-radius:999px;background:#0066ff;color:#fff;font-weight:700;}
 `;
 
 const bootRecoveryScript = `
 (function(){
-  var DARK_BG="#16213f", LIGHT_BG="#f8fafc";
+  var DARK_BG="#16213f", LIGHT_BG="#f8fafc", started=Date.now();
   function applyBase(){
     try{
       var html=document.documentElement;
@@ -45,11 +55,45 @@ const bootRecoveryScript = `
       if(!isAdmin && (" "+html.className+" ").indexOf(" dark ")===-1){html.className=(html.className?html.className+" ":"")+"dark";}
     }catch(e){}
   }
+  function bootNode(){return document.getElementById("sc-static-boot");}
+  function setBootText(title,text,showButton){
+    try{
+      var node=bootNode(); if(!node) return;
+      var h=node.querySelector(".sc-static-boot-title"), p=node.querySelector(".sc-static-boot-text"), l=node.querySelector(".sc-static-boot-loader"), a=node.querySelector(".sc-static-boot-action");
+      if(h) h.textContent=title;
+      if(p) p.textContent=text;
+      if(l) l.style.display=showButton?"none":"block";
+      if(a) a.style.display=showButton?"inline-flex":"none";
+    }catch(e){}
+  }
+  function markReady(){
+    try{
+      var html=document.documentElement;
+      if((" "+html.className+" ").indexOf(" sc-app-ready ")===-1){html.className=(html.className?html.className+" ":"")+"sc-app-ready";}
+      var node=bootNode();
+      if(node){setTimeout(function(){try{node.parentNode&&node.parentNode.removeChild(node);}catch(e){}},320);}
+    }catch(e){}
+  }
+  function appLooksVisible(){
+    try{
+      var app=document.querySelector("[data-sc-app-ready]");
+      if(!app) return false;
+      var rect=app.getBoundingClientRect(), style=getComputedStyle(app), text=(app.innerText||app.textContent||"").replace(/\\s+/g," ").trim();
+      return rect.height>80 && rect.width>220 && style.display!=="none" && style.visibility!=="hidden" && text.length>30;
+    }catch(e){return false;}
+  }
   function hasVisibleApp(){
     if(!document.body) return true;
-    if(document.querySelector("[data-sc-app-ready],main,header")) return true;
+    if(appLooksVisible()) return true;
     var text=(document.body.innerText||document.body.textContent||"").replace(/\\s+/g," ").trim();
     return text.length>30;
+  }
+  function watchReady(){
+    try{
+      if(appLooksVisible()){markReady();return;}
+      if(Date.now()-started>6500){setBootText("SC TECHNOLOGIE","Le chargement prend trop de temps. Touchez le bouton ci-dessous pour relancer la boutique.",true);return;}
+      setTimeout(watchReady,180);
+    }catch(e){}
   }
   function recover(){
     setTimeout(function(){
@@ -58,16 +102,25 @@ const bootRecoveryScript = `
         document.body.style.margin="0";
         document.body.style.background=DARK_BG;
         document.body.style.color="#f8fafc";
-        document.body.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#16213f;color:#f8fafc"><section style="max-width:420px;text-align:center"><img src="/app-icon.png" alt="SC TECHNOLOGIE" width="72" height="72" style="border-radius:18px;background:white;padding:6px;margin:0 auto 16px;box-shadow:0 10px 35px rgba(0,102,255,.35)"><h1 style="font-size:22px;margin:0 0 8px">SC TECHNOLOGIE</h1><p style="margin:0 0 18px;color:#cbd5e1">Le chargement a été sécurisé. Touchez le bouton ci-dessous pour relancer la page.</p><button onclick="location.reload()" style="border:0;border-radius:999px;background:#0066ff;color:white;padding:12px 18px;font-weight:800;cursor:pointer">Recharger la boutique</button></section></main>';
+        setBootText("SC TECHNOLOGIE","Le chargement a été sécurisé. Touchez le bouton ci-dessous pour relancer la boutique.",true);
       }catch(e){}
     },120);
   }
+  document.addEventListener("click",function(event){
+    try{
+      var target=event.target&&event.target.closest&&event.target.closest("[data-sc-reload]");
+      if(!target) return;
+      event.preventDefault();
+      location.reload();
+    }catch(e){}
+  },true);
   applyBase();
   window.addEventListener("error",recover,true);
   window.addEventListener("unhandledrejection",recover,true);
   if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",function(){applyBase();setTimeout(recover,4500);},{once:true});
+    document.addEventListener("DOMContentLoaded",function(){applyBase();watchReady();setTimeout(recover,4500);},{once:true});
   }else{
+    watchReady();
     setTimeout(recover,4500);
   }
 })();
