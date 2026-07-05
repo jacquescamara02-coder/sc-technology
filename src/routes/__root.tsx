@@ -91,7 +91,7 @@ const bootRecoveryScript = `
   }
   function watchReady(){
     try{
-      var visibleWait=Number(document.documentElement.getAttribute("data-sc-boot-wait")||"0");
+      var visibleWait=Number(document.documentElement.getAttribute("data-sc-boot-wait")||"2200");
       if(appLooksVisible()){markReady();return;}
       if(Date.now()-started>visibleWait){markReady();return;}
       if(Date.now()-started>6500){setBootText("SC TECHNOLOGIE","Le chargement prend trop de temps. Touchez le bouton ci-dessous pour relancer la boutique.",true);return;}
