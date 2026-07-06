@@ -275,20 +275,18 @@ function RootComponent() {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    let cancelled = false;
-    document.documentElement.setAttribute("data-sc-boot-wait", isInitialSyncLoaded() ? "0" : "2200");
+    // Reveal the app as soon as React has mounted. Skeleton placeholders inside
+    // the routes cover the brief moment before Supabase data arrives, so there
+    // is no reason to keep the boot overlay up waiting for the network.
+    document.documentElement.setAttribute("data-sc-boot-wait", "0");
     const reveal = () => {
-      if (cancelled) return;
       document.documentElement.classList.add("sc-app-ready");
       const boot = document.getElementById("sc-static-boot");
       if (boot) boot.setAttribute("aria-hidden", "true");
     };
-    const timer = window.setTimeout(reveal, 900);
-    void waitForInitialSync(1_800).then(reveal);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    reveal();
+    // Kick the sync so cached data is refreshed in the background.
+    void waitForInitialSync(1_800);
   }, []);
 
   useEffect(() => {
