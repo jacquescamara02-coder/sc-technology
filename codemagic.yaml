@@ -13,7 +13,7 @@ workflows:
         script: npm install
       - name: Build web
         script: |
-          npx vite build --mode development
+          npx vite build
           rm -rf mobile-dist/client
           mkdir -p mobile-dist
           cp -r dist/client mobile-dist/client
