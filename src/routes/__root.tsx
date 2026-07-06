@@ -17,7 +17,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { Footer } from "@/components/Footer";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { AmbientBackground } from "@/components/AmbientBackground";
-import { isInitialSyncLoaded, useSupabaseSync, waitForInitialSync } from "@/lib/supabase-sync";
+import { useSupabaseSync, waitForInitialSync } from "@/lib/supabase-sync";
 import { useSyncStatus } from "@/lib/sync-status";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -217,6 +217,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", href: "/app-icon.png" },
       { rel: "shortcut icon", href: "/favicon.ico" },
       { rel: "apple-touch-icon", href: "/app-icon.png" },
+      { rel: "preconnect", href: "https://reqqoixtkrsnnjnfsvbu.supabase.co", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://reqqoixtkrsnnjnfsvbu.supabase.co" },
     ],
   }),
   shellComponent: RootShell,
@@ -275,20 +277,18 @@ function RootComponent() {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    let cancelled = false;
-    document.documentElement.setAttribute("data-sc-boot-wait", isInitialSyncLoaded() ? "0" : "2200");
+    // Reveal the app as soon as React has mounted. Skeleton placeholders inside
+    // the routes cover the brief moment before Supabase data arrives, so there
+    // is no reason to keep the boot overlay up waiting for the network.
+    document.documentElement.setAttribute("data-sc-boot-wait", "0");
     const reveal = () => {
-      if (cancelled) return;
       document.documentElement.classList.add("sc-app-ready");
       const boot = document.getElementById("sc-static-boot");
       if (boot) boot.setAttribute("aria-hidden", "true");
     };
-    const timer = window.setTimeout(reveal, 900);
-    void waitForInitialSync(1_800).then(reveal);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    reveal();
+    // Kick the sync so cached data is refreshed in the background.
+    void waitForInitialSync(1_800);
   }, []);
 
   useEffect(() => {
