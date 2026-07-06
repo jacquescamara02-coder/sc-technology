@@ -58,7 +58,7 @@ function CartPage() {
               <Link
                 to="/product/$productId"
                 params={{ productId: product.id }}
-                className="h-20 w-20 shrink-0 rounded-xl bg-cover bg-center bg-surface"
+                className="block h-20 w-20 shrink-0 rounded-xl bg-cover bg-center bg-surface"
                 style={{ backgroundImage: product.image }}
                 aria-label={product.name}
               />

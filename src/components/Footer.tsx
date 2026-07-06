@@ -6,7 +6,7 @@ export function Footer() {
       {/* Download the app */}
       <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
         <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">
-          Bientôt disponible
+          Maintenant disponible
         </div>
         <div className="mt-1 text-base font-bold text-foreground">SC TECHNOLOGIE</div>
         <p className="mt-1 text-[11px] text-muted-foreground">
@@ -44,10 +44,15 @@ export function Footer() {
 
 function StoreBadge({ store }: { store: "google" | "apple" }) {
   const isApple = store === "apple";
+  const href = isApple
+    ? "#"
+    : "https://play.google.com/store/apps/details?id=com.sctechnology.app";
   return (
     <a
-      href="#"
-      onClick={(e) => e.preventDefault()}
+      href={href}
+      target={isApple ? undefined : "_blank"}
+      rel={isApple ? undefined : "noopener noreferrer"}
+      onClick={isApple ? (e) => e.preventDefault() : undefined}
       aria-label={isApple ? "Télécharger sur l'App Store" : "Disponible sur Google Play"}
       className="group inline-flex items-center gap-2.5 rounded-xl border border-white/15 bg-black px-3.5 py-2 text-white shadow-lg transition active:scale-95 hover:border-white/30"
     >
