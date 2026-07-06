@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
 import {
   useAdminData,
+  defaultSettings,
+  seededCategories,
+  seededProducts,
   type AdminProduct,
   type AdminCategory,
   type AdminSettings,
