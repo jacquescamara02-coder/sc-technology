@@ -295,10 +295,9 @@ function rowsToOrders(rows: any[] | null | undefined): Order[] {
 }
 
 async function seedSupabase() {
-  const state = useAdminData.getState();
   // categories first (FK)
   await supabase.from("categories").upsert(
-    state.categories.map((c, i) => ({
+    seededCategories.map((c, i) => ({
       id: c.id,
       name: c.name,
       icon_key: c.iconKey ?? null,
@@ -306,7 +305,7 @@ async function seedSupabase() {
     })),
   );
   // subcategories
-  const subRows = state.categories.flatMap((c) =>
+  const subRows = seededCategories.flatMap((c) =>
     c.subcategories.map((s, i) => ({
       id: `${c.id}__${s.id}`,
       category_id: c.id,
@@ -315,11 +314,11 @@ async function seedSupabase() {
     })),
   );
   if (subRows.length) await supabase.from("subcategories").upsert(subRows);
-  if (state.products.length)
-    await supabase.from("products").upsert(state.products.map(productToRow));
-  if (state.settings.heroSlides.length)
+  if (seededProducts.length)
+    await supabase.from("products").upsert(seededProducts.map(productToRow));
+  if (defaultSettings.heroSlides.length)
     await supabase.from("hero_slides").upsert(
-      state.settings.heroSlides.map((h, i) => ({
+      defaultSettings.heroSlides.map((h, i) => ({
         id: h.id,
         title: h.title,
         subtitle: h.subtitle,
@@ -332,7 +331,7 @@ async function seedSupabase() {
         position: i,
       })),
     );
-  const { heroSlides: _hs, ...rest } = state.settings;
+  const { heroSlides: _hs, ...rest } = defaultSettings;
   void _hs;
   await supabase.from("app_settings").upsert({ id: 1, data: rest });
 }
@@ -388,7 +387,11 @@ export function useSupabaseSync() {
 
         if (isEmpty) {
           await seedSupabase();
-          // skip re-loading; current state already matches what we just seeded
+          useAdminData.setState({
+            products: seededProducts,
+            categories: seededCategories,
+            settings: defaultSettings,
+          });
         } else {
           // categories + subcategories
           const cats: AdminCategory[] = (catRes.data ?? []).map((c: any) => ({

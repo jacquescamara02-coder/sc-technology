@@ -268,12 +268,17 @@ const defaultSettings: AdminSettings = {
   heroSlides: defaultHeroSlides,
 };
 
+const initialSettings: AdminSettings = {
+  ...defaultSettings,
+  heroSlides: [],
+};
+
 export const useAdminData = create<AdminDataState>()(
   persist(
     (set) => ({
-      products: seededProducts,
-      categories: seededCategories,
-      settings: defaultSettings,
+      products: [],
+      categories: [],
+      settings: initialSettings,
       facebookPosts: [],
 
       addProduct: (p) =>
