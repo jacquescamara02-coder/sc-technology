@@ -66,12 +66,36 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+function withFreshDocumentHeaders(request: Request, response: Response): Response {
+  const contentType = response.headers.get("content-type") ?? "";
+  const accept = request.headers.get("accept") ?? "";
+  const pathname = new URL(request.url).pathname;
+  const isDocument =
+    contentType.includes("text/html") ||
+    (request.method === "GET" && accept.includes("text/html") && !pathname.split("/").pop()?.includes("."));
+
+  if (!isDocument) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "no-store, no-cache, max-age=0, must-revalidate");
+  headers.set("CDN-Cache-Control", "no-store");
+  headers.set("Cloudflare-CDN-Cache-Control", "no-store");
+  headers.set("Pragma", "no-cache");
+  headers.set("Expires", "0");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return withFreshDocumentHeaders(request, await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
       return brandedErrorResponse();

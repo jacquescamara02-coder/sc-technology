@@ -203,7 +203,7 @@ interface AdminDataState {
   resetAll: () => void;
 }
 
-const seededProducts: AdminProduct[] = seedProducts.map((p) => ({
+export const seededProducts: AdminProduct[] = seedProducts.map((p) => ({
   id: p.id,
   name: p.name,
   brand: p.brand,
@@ -223,7 +223,7 @@ const seededProducts: AdminProduct[] = seedProducts.map((p) => ({
   publishFacebook: false,
 }));
 
-const seededCategories: AdminCategory[] = seedCategories.map((c) => ({
+export const seededCategories: AdminCategory[] = seedCategories.map((c) => ({
   id: c.id,
   name: c.name,
   iconKey: c.id,
@@ -236,7 +236,7 @@ const defaultHeroSlides: HeroSlide[] = [
   { id: "hero-3", title: "Livraison au compte du client", subtitle: "Partout en Guinée — frais à la charge du client", cta: "En savoir plus", badge: "Info", link: "/categories", hue: 200, active: true, image: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=1200&q=80&auto=format&fit=crop" },
 ];
 
-const defaultSettings: AdminSettings = {
+export const defaultSettings: AdminSettings = {
   storeName: "SC TECHNOLOGIE",
   appTagline: "Matériel informatique en Guinée",
   logo: undefined,
@@ -268,12 +268,17 @@ const defaultSettings: AdminSettings = {
   heroSlides: defaultHeroSlides,
 };
 
+const initialSettings: AdminSettings = {
+  ...defaultSettings,
+  heroSlides: [],
+};
+
 export const useAdminData = create<AdminDataState>()(
   persist(
     (set) => ({
-      products: seededProducts,
-      categories: seededCategories,
-      settings: defaultSettings,
+      products: [],
+      categories: [],
+      settings: initialSettings,
       facebookPosts: [],
 
       addProduct: (p) =>
