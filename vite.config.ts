@@ -11,9 +11,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
-    spa: { enabled: false },
-    prerender: { enabled: false, failOnError: false },
-    pages: [],
+    spa: { enabled: true },
+    prerender: { enabled: false },
   },
   vite: {
     optimizeDeps: {
