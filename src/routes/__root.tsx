@@ -17,7 +17,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { Footer } from "@/components/Footer";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { AmbientBackground } from "@/components/AmbientBackground";
-import { isInitialSyncLoaded, useSupabaseSync, waitForInitialSync } from "@/lib/supabase-sync";
+import { useSupabaseSync, waitForInitialSync } from "@/lib/supabase-sync";
 import { useSyncStatus } from "@/lib/sync-status";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
