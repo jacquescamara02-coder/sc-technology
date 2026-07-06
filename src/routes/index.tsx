@@ -7,6 +7,7 @@ import {
   useFeaturedProducts,
   useNewArrivalProducts,
 } from "@/lib/storefront";
+import { useSyncStatus } from "@/lib/sync-status";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -17,6 +18,7 @@ function Index() {
   const categories = useStorefrontCategories();
   const featured = useFeaturedProducts().slice(0, 6);
   const newArrivals = useNewArrivalProducts().slice(0, 6);
+  const initialLoaded = useSyncStatus((s) => s.initialLoaded);
 
   return (
     <div className="space-y-7 px-4 py-4">
@@ -29,7 +31,15 @@ function Index() {
           action={{ label: "Voir tout", onClick: () => navigate({ to: "/categories" }) }}
         />
         <div className="grid grid-cols-3 gap-2.5">
-          {categories.map((c) => {
+          {!initialLoaded && categories.length === 0 ? (
+            Array.from({ length: 9 }).map((_, index) => (
+              <div key={index} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3">
+                <div className="h-12 w-12 animate-pulse rounded-xl bg-surface-elevated" />
+                <div className="h-3 w-16 animate-pulse rounded-full bg-surface-elevated" />
+                <div className="h-2.5 w-12 animate-pulse rounded-full bg-surface-elevated" />
+              </div>
+            ))
+          ) : categories.map((c) => {
             const Icon = c.icon;
             return (
               <Link
@@ -52,7 +62,24 @@ function Index() {
       </section>
 
       {/* Produits en vedette */}
-      {featured.length > 0 && (
+      {!initialLoaded && featured.length === 0 ? (
+        <section>
+          <SectionHeader title="Produits en vedette" />
+          <div className="no-scrollbar -mx-4 flex gap-3 overflow-hidden px-4 pb-1">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="w-44 shrink-0 overflow-hidden rounded-2xl border border-border bg-card">
+                <div className="aspect-square animate-pulse bg-surface-elevated" />
+                <div className="space-y-2 p-3">
+                  <div className="h-2.5 w-12 animate-pulse rounded-full bg-surface-elevated" />
+                  <div className="h-3 w-full animate-pulse rounded-full bg-surface-elevated" />
+                  <div className="h-3 w-20 animate-pulse rounded-full bg-surface-elevated" />
+                  <div className="h-9 animate-pulse rounded-xl bg-surface-elevated" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : featured.length > 0 && (
         <section>
           <SectionHeader
             title="Produits en vedette"
