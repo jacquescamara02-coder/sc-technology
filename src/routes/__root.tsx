@@ -79,8 +79,8 @@ const bootRecoveryScript = `
     try{
       var app=document.querySelector("[data-sc-app-ready]");
       if(!app) return false;
-      var rect=app.getBoundingClientRect(), style=getComputedStyle(app), text=(app.innerText||app.textContent||"").replace(/\\s+/g," ").trim();
-      return rect.height>80 && rect.width>220 && style.display!=="none" && style.visibility!=="hidden" && (location.pathname.indexOf("/admin")===0 || text.length>30);
+      var rect=app.getBoundingClientRect(), style=getComputedStyle(app);
+      return rect.height>80 && rect.width>220 && style.display!=="none" && style.visibility!=="hidden";
     }catch(e){return false;}
   }
   function hasVisibleApp(){
@@ -91,11 +91,8 @@ const bootRecoveryScript = `
   }
   function watchReady(){
     try{
-      var visibleWait=Number(document.documentElement.getAttribute("data-sc-boot-wait")||"2200");
-      var isAdmin=location.pathname.indexOf("/admin")===0;
       if(appLooksVisible()){markReady();return;}
-      if(isAdmin && Date.now()-started>visibleWait){markReady();return;}
-      if(Date.now()-started>6500){setBootText("SC TECHNOLOGIE","Le chargement prend trop de temps. Touchez le bouton ci-dessous pour relancer la boutique.",true);return;}
+      if(Date.now()-started>1800){markReady();return;}
       setTimeout(watchReady,180);
     }catch(e){}
   }
@@ -280,14 +277,17 @@ function RootComponent() {
     if (typeof document === "undefined") return;
     let cancelled = false;
     document.documentElement.setAttribute("data-sc-boot-wait", isInitialSyncLoaded() ? "0" : "2200");
-    void waitForInitialSync(2_200).then((loaded) => {
-      if (cancelled || !loaded) return;
+    const reveal = () => {
+      if (cancelled) return;
       document.documentElement.classList.add("sc-app-ready");
       const boot = document.getElementById("sc-static-boot");
       if (boot) boot.setAttribute("aria-hidden", "true");
-    });
+    };
+    const timer = window.setTimeout(reveal, 900);
+    void waitForInitialSync(1_800).then(reveal);
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
     };
   }, []);
 
@@ -321,7 +321,7 @@ function RootComponent() {
       <ThemeApplier />
       <SplashScreen />
       <AmbientBackground />
-      <div data-sc-app-ready={initialLoaded ? "true" : undefined} className="relative z-10 min-h-screen pb-20">
+      <div data-sc-app-ready="true" data-sc-storefront-loaded={initialLoaded ? "true" : "false"} className="relative z-10 min-h-screen pb-20">
         <TopHeader />
         <main className="mx-auto max-w-screen-md animate-[fade-in_0.3s_ease-out]">
           <Outlet />
