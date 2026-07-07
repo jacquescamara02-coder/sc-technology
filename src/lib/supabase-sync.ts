@@ -154,20 +154,43 @@ type ProductRow = {
   price: number;
   old_price: number | null;
   stock: number;
-  sku: string;
-  description: string;
-  specs: unknown;
-  images: unknown;
+  sku?: string | null;
+  description?: string | null;
+  specs?: unknown;
+  images?: unknown;
   active: boolean;
   featured: boolean;
   is_new: boolean;
   badge: string | null;
   popularity: number;
-  publish_facebook: boolean;
-  facebook_posted_at: string | null;
-  facebook_status: string | null;
-  created_at: string;
+  publish_facebook?: boolean | null;
+  facebook_posted_at?: string | null;
+  facebook_status?: string | null;
+  created_at?: string | null;
 };
+
+const STOREFRONT_PRODUCT_COLUMNS = [
+  "id",
+  "name",
+  "brand",
+  "category",
+  "subcategory",
+  "price",
+  "old_price",
+  "stock",
+  "sku",
+  "description",
+  "specs",
+  "active",
+  "featured",
+  "is_new",
+  "badge",
+  "popularity",
+  "publish_facebook",
+  "facebook_posted_at",
+  "facebook_status",
+  "created_at",
+].join(",");
 
 function productToRow(p: AdminProduct): ProductRow {
   return {
@@ -196,6 +219,8 @@ function productToRow(p: AdminProduct): ProductRow {
 }
 
 function rowToProduct(r: ProductRow): AdminProduct {
+  const specs = Array.isArray(r.specs) ? (r.specs as { key: string; value: string }[]) : [];
+  const images = Array.isArray(r.images) ? (r.images as string[]) : [];
   return {
     id: r.id,
     name: r.name,
@@ -205,17 +230,17 @@ function rowToProduct(r: ProductRow): AdminProduct {
     price: Number(r.price),
     oldPrice: r.old_price == null ? undefined : Number(r.old_price),
     stock: r.stock,
-    sku: r.sku,
-    description: r.description,
-    specs: (r.specs as { key: string; value: string }[]) ?? [],
-    images: (r.images as string[]) ?? [],
+    sku: r.sku ?? r.id.toUpperCase(),
+    description: r.description ?? "",
+    specs,
+    images,
     active: r.active,
     featured: r.featured,
     isNew: r.is_new,
     badge: (r.badge as AdminProduct["badge"]) ?? undefined,
     popularity: r.popularity,
-    createdAt: new Date(r.created_at).getTime(),
-    publishFacebook: r.publish_facebook,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    publishFacebook: !!r.publish_facebook,
     facebookPostedAt: r.facebook_posted_at ?? undefined,
     facebookStatus: (r.facebook_status as AdminProduct["facebookStatus"]) ?? undefined,
   };
@@ -242,7 +267,10 @@ async function loadStorefrontFromSupabase() {
   try {
     const [prodRes, catRes, subRes, heroRes, settingsRes] =
       await Promise.all([
-        supabase.from("products").select("*"),
+        // Do not pull product images during the first storefront boot. Some
+        // rows contain very large inline images, which made private-mode
+        // launches wait several seconds before categories/products appeared.
+        supabase.from("products").select(STOREFRONT_PRODUCT_COLUMNS),
         supabase.from("categories").select("*").order("position"),
         supabase.from("subcategories").select("*").order("position"),
         supabase.from("hero_slides").select("*").order("position"),
@@ -254,6 +282,14 @@ async function loadStorefrontFromSupabase() {
     console.error("[loadStorefrontFromSupabase] erreur:", err);
     throw err;
   }
+}
+
+async function loadFullProductsForAdmin() {
+  const { data } = await supabase.from("products").select("*");
+  if (!data) return;
+  useAdminData.setState({
+    products: (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow)),
+  });
 }
 
 async function loadSecondaryFromSupabase() {
@@ -437,12 +473,22 @@ export function useSupabaseSync() {
         // data (orders/facebook history) finishes loading.
         useSyncStatus.getState().markLoaded();
 
-        try {
-          const { ordersRes, fbRes } = await loadSecondaryFromSupabase();
-          useAdminData.setState({ facebookPosts: rowsToFacebookPosts(fbRes.data) });
-          useOrders.setState({ orders: rowsToOrders(ordersRes.data) });
-        } catch (secondaryErr) {
-          console.error("[supabase-sync] secondary load failed", secondaryErr);
+        if (window.location.pathname.startsWith("/admin")) {
+          try {
+            await loadFullProductsForAdmin();
+          } catch (fullErr) {
+            console.error("[supabase-sync] full admin product load failed", fullErr);
+          }
+        }
+
+        if (window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/orders")) {
+          try {
+            const { ordersRes, fbRes } = await loadSecondaryFromSupabase();
+            useAdminData.setState({ facebookPosts: rowsToFacebookPosts(fbRes.data) });
+            useOrders.setState({ orders: rowsToOrders(ordersRes.data) });
+          } catch (secondaryErr) {
+            console.error("[supabase-sync] secondary load failed", secondaryErr);
+          }
         }
 
         // snapshot AFTER applying remote so first diff doesn't echo back
@@ -501,7 +547,8 @@ export function useSupabaseSync() {
 }
 
 async function refreshProducts() {
-  const { data } = await supabase.from("products").select("*");
+  const columns = window.location.pathname.startsWith("/admin") ? "*" : STOREFRONT_PRODUCT_COLUMNS;
+  const { data } = await supabase.from("products").select(columns);
   if (!data) return;
   const products = (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow));
   useAdminData.setState({ products });

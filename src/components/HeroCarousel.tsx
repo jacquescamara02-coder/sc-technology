@@ -1,12 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
-import { useAdminData } from "@/lib/admin-store";
+import { useAdminData, type HeroSlide } from "@/lib/admin-store";
+
+const instantSlides: HeroSlide[] = [
+  {
+    id: "instant-hero",
+    title: "SC TECHNOLOGIE",
+    subtitle: "Batteries, chargeurs, imprimantes et accessoires disponibles en Guinée",
+    cta: "Voir la boutique",
+    badge: "Maintenant disponible",
+    link: "/categories",
+    hue: 215,
+    active: true,
+  },
+];
 
 export function HeroCarousel() {
   const settings = useAdminData((s) => s.settings);
   const navigate = useNavigate();
-  const slides = (settings.heroSlides ?? []).filter((s) => s.active);
+  const remoteSlides = (settings.heroSlides ?? []).filter((s) => s.active);
+  const slides = remoteSlides.length > 0 ? remoteSlides : instantSlides;
   const [i, setI] = useState(0);
 
   useEffect(() => {
