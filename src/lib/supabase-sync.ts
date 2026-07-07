@@ -284,6 +284,13 @@ async function loadStorefrontFromSupabase() {
   }
 }
 
+async function loadFullProductsForAdmin() {
+  const { data } = await supabase.from("products").select("*");
+  if (!data) return;
+  useAdminData.setState({
+    products: (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow)),
+  });
+}
 
 async function loadSecondaryFromSupabase() {
   try {
@@ -466,12 +473,22 @@ export function useSupabaseSync() {
         // data (orders/facebook history) finishes loading.
         useSyncStatus.getState().markLoaded();
 
-        try {
-          const { ordersRes, fbRes } = await loadSecondaryFromSupabase();
-          useAdminData.setState({ facebookPosts: rowsToFacebookPosts(fbRes.data) });
-          useOrders.setState({ orders: rowsToOrders(ordersRes.data) });
-        } catch (secondaryErr) {
-          console.error("[supabase-sync] secondary load failed", secondaryErr);
+        if (window.location.pathname.startsWith("/admin")) {
+          try {
+            await loadFullProductsForAdmin();
+          } catch (fullErr) {
+            console.error("[supabase-sync] full admin product load failed", fullErr);
+          }
+        }
+
+        if (window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/orders")) {
+          try {
+            const { ordersRes, fbRes } = await loadSecondaryFromSupabase();
+            useAdminData.setState({ facebookPosts: rowsToFacebookPosts(fbRes.data) });
+            useOrders.setState({ orders: rowsToOrders(ordersRes.data) });
+          } catch (secondaryErr) {
+            console.error("[supabase-sync] secondary load failed", secondaryErr);
+          }
         }
 
         // snapshot AFTER applying remote so first diff doesn't echo back
