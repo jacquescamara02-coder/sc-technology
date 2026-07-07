@@ -284,13 +284,6 @@ async function loadStorefrontFromSupabase() {
   }
 }
 
-async function loadFullProductsForAdmin() {
-  const { data } = await supabase.from("products").select("*");
-  if (!data) return;
-  useAdminData.setState({
-    products: (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow)),
-  });
-}
 
 async function loadSecondaryFromSupabase() {
   try {
@@ -472,14 +465,6 @@ export function useSupabaseSync() {
         // Storefront is now current: let the UI render before slower secondary
         // data (orders/facebook history) finishes loading.
         useSyncStatus.getState().markLoaded();
-
-        if (window.location.pathname.startsWith("/admin")) {
-          try {
-            await loadFullProductsForAdmin();
-          } catch (fullErr) {
-            console.error("[supabase-sync] full admin product load failed", fullErr);
-          }
-        }
 
         try {
           const { ordersRes, fbRes } = await loadSecondaryFromSupabase();
