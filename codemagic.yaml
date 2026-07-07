@@ -75,6 +75,14 @@ workflows:
           keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CERTIFICATE_PASSWORD
           echo $PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
           xcode-project use-profiles --profile /tmp/profile.mobileprovision
+      - name: Bump build number
+        script: |
+          cd ios/App
+          CURRENT=$(agvtool what-version -terse)
+          NEW=$((CURRENT + 1))
+          agvtool new-version -all $NEW
+          echo "NEW=$NEW" >> $CM_ENV
+          cd ../..
       - name: Build iOS
         script: |
           UUID=$(security cms -D -i /tmp/profile.mobileprovision 2>/dev/null | plutil -extract UUID raw -)
