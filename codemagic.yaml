@@ -114,7 +114,7 @@ workflows:
           git config user.name "Codemagic CI"
           git add ios/App/App.xcodeproj/project.pbxproj
           git commit -m "ci: bump build number to $NEW [skip ci]" || echo "Nothing to commit"
-          git push origin main || echo "Push failed, check GitHub write permissions"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/jacquescamara02-coder/sc-technology.git main || echo "Push failed, check GitHub write permissions"
     artifacts:
       - build/App.xcarchive
       - build/App.ipa
