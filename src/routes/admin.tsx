@@ -51,6 +51,17 @@ function AdminLayout() {
   const products = useAdminData((s) => s.products);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [ordersOpen, setOrdersOpen] = useState(false);
+  const orders = useOrders((s) => s.orders);
+  const unreadIds = useOrderNotifications((s) => s.unreadIds);
+  const markAllRead = useOrderNotifications((s) => s.markAllRead);
+  const unreadOrders = useMemo(
+    () => unreadIds
+      .map((id) => orders.find((o) => o.id === id))
+      .filter((o): o is NonNullable<typeof o> => Boolean(o)),
+    [unreadIds, orders],
+  );
+  const unreadCount = unreadOrders.length;
 
   useLowStockAlerts();
 
