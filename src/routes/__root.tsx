@@ -31,7 +31,7 @@ const criticalBootCss = `
   body:empty::before{content:"SC TECHNOLOGIE";display:grid;place-items:center;min-height:100vh;color:#f8fafc;font-weight:800;letter-spacing:.08em;}
   a{color:inherit;text-decoration:none;}img,svg{max-width:100%;}button,input,textarea,select{font:inherit;}header{position:sticky;top:0;z-index:40;}main{max-width:768px;margin-inline:auto;}section{margin-block:1.25rem;}
   #sc-static-boot{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;background:#16213f;background-image:radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 45%,#0b1220 100%);color:#f8fafc;text-align:center;transition:opacity .24s ease,visibility .24s ease;}
-  html.sc-app-ready #sc-static-boot{opacity:0;visibility:hidden;pointer-events:none;}
+  html.sc-app-ready #sc-static-boot,html[data-sc-force-ready="true"] #sc-static-boot{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
   .sc-static-boot-card{width:min(100%,28rem);}
   .sc-static-boot-logo{width:72px;height:72px;margin:0 auto 16px;border-radius:18px;background:#fff;padding:6px;object-fit:contain;box-shadow:0 14px 40px rgba(0,102,255,.35);}
   .sc-static-boot-title{margin:0 0 8px;font-size:22px;line-height:1.15;font-weight:900;letter-spacing:.02em;}
@@ -51,8 +51,6 @@ const bootRecoveryScript = `
     try{
       var html=document.documentElement;
       var isAdmin=location.pathname.indexOf("/admin")===0;
-      html.style.backgroundColor=isAdmin?LIGHT_BG:DARK_BG;
-      html.style.color=isAdmin?"#0f172b":"#f8fafc";
       if(!isAdmin && (" "+html.className+" ").indexOf(" dark ")===-1){html.className=(html.className?html.className+" ":"")+"dark";}
     }catch(e){}
   }
@@ -71,6 +69,7 @@ const bootRecoveryScript = `
     try{
       var html=document.documentElement;
       if((" "+html.className+" ").indexOf(" sc-app-ready ")===-1){html.className=(html.className?html.className+" ":"")+"sc-app-ready";}
+      html.setAttribute("data-sc-force-ready","true");
       var node=bootNode();
       if(node){node.setAttribute("aria-hidden","true");}
     }catch(e){}
@@ -91,8 +90,8 @@ const bootRecoveryScript = `
   }
   function watchReady(){
     try{
-      if(appLooksVisible()){markReady();return;}
-      if(Date.now()-started>1800){markReady();return;}
+      if(appLooksVisible() && Date.now()-started>12000){markReady();return;}
+      if(Date.now()-started>12000){markReady();return;}
       setTimeout(watchReady,180);
     }catch(e){}
   }
@@ -229,7 +228,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className="dark">
+    <html lang="fr" className="dark" suppressHydrationWarning>
       <head>
         {/* Critical fallback: guarantees the page is never pure black/white,
             even before the stylesheet loads or on very old browsers. */}
@@ -242,7 +241,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <div id="sc-static-boot" role="status" aria-live="polite">
+        <div id="sc-static-boot" role="status" aria-live="polite" suppressHydrationWarning>
           <div className="sc-static-boot-card">
             <img className="sc-static-boot-logo" src="/app-icon.png" alt="SC TECHNOLOGIE" width="72" height="72" />
             <div className="sc-static-boot-loader" aria-hidden="true" />
@@ -283,8 +282,12 @@ function RootComponent() {
     document.documentElement.setAttribute("data-sc-boot-wait", "0");
     const reveal = () => {
       document.documentElement.classList.add("sc-app-ready");
+      document.documentElement.setAttribute("data-sc-force-ready", "true");
       const boot = document.getElementById("sc-static-boot");
-      if (boot) boot.setAttribute("aria-hidden", "true");
+      if (boot) {
+        boot.setAttribute("aria-hidden", "true");
+        boot.style.setProperty("display", "none", "important");
+      }
     };
     reveal();
     // Kick the sync so cached data is refreshed in the background.
