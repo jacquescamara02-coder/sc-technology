@@ -16,7 +16,14 @@ workflows:
           npx vite build
           rm -rf mobile-dist/client
           mkdir -p mobile-dist
-          cp -r dist/client mobile-dist/client
+          if [ -d "dist/client" ]; then
+            cp -r dist/client mobile-dist/client
+          elif [ -d ".output/public" ]; then
+            cp -r .output/public mobile-dist/client
+          else
+            echo "ERROR: no client build output found (checked dist/client and .output/public)"
+            exit 1
+          fi
       - name: Create native index.html
         script: |
           python3 - <<'PY'
