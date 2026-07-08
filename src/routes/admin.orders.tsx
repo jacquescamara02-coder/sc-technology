@@ -9,6 +9,8 @@ import {
   formatDate,
 } from "@/lib/orders-store";
 import { formatGNF } from "@/lib/data";
+import { openInvoicePrint } from "@/lib/invoice-template";
+import { useAdminData } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/orders")({
   component: OrdersAdminPage,
