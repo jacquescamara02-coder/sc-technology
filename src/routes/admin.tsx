@@ -85,6 +85,12 @@ function AdminLayout() {
     setMobileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const base = "SC TECHNOLOGIE — Administration";
+    document.title = unreadCount > 0 ? `(${unreadCount}) 🔔 Nouvelle commande — ${base}` : base;
+  }, [unreadCount]);
+
   const handleLogout = async () => {
     await logout();
     navigate({ to: "/admin/login" });
