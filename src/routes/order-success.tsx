@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { CheckCircle2, Package, MapPin, CreditCard, Smartphone, Clock } from "lucide-react";
+import { CheckCircle2, Package, MapPin, CreditCard, Smartphone, Clock, Printer } from "lucide-react";
 import { useOrders, estimatedDelivery } from "@/lib/orders-store";
 import { formatGNF } from "@/lib/data";
+import { openInvoicePrint } from "@/lib/invoice-template";
 
 const searchSchema = z.object({ id: z.string().optional() });
 
