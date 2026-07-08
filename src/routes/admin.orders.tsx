@@ -9,6 +9,8 @@ import {
   formatDate,
 } from "@/lib/orders-store";
 import { formatGNF } from "@/lib/data";
+import { openInvoicePrint } from "@/lib/invoice-template";
+import { useAdminData } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/orders")({
   component: OrdersAdminPage,
@@ -157,24 +159,13 @@ function OrderDetailModal({
   onClose: () => void;
   onUpdateStatus: (s: OrderStatus) => void;
 }) {
+  const { settings } = useAdminData();
   const printInvoice = () => {
-    const w = window.open("", "_blank");
-    if (!w) return;
-    const itemsHtml = order.items
-      .map(
-        (i) =>
-          `<tr><td>${i.name}</td><td>${i.qty}</td><td style="text-align:right">${formatGNF(i.price)}</td><td style="text-align:right">${formatGNF(i.price * i.qty)}</td></tr>`,
-      )
-      .join("");
-    w.document.write(`<!doctype html><html><head><title>Facture ${order.id}</title>
-      <style>body{font-family:system-ui;padding:32px;color:#0f172a}h1{margin:0 0 8px}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left}th{background:#f8fafc}.tot{font-weight:700;font-size:18px;margin-top:24px;text-align:right}</style></head><body>
-      <h1>SC TECHNOLOGIE</h1><p>Facture <strong>${order.id}</strong> — ${formatDate(order.createdAt)}</p>
-      <p><strong>Client:</strong> ${order.delivery.fullName}<br/><strong>Téléphone:</strong> ${order.delivery.phone}<br/><strong>Adresse:</strong> ${order.delivery.address}, ${order.delivery.district}, ${order.delivery.city}</p>
-      <table><thead><tr><th>Produit</th><th>Qté</th><th style="text-align:right">PU</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemsHtml}</tbody></table>
-      <p class="tot">Sous-total : ${formatGNF(order.subtotal)}<br/>Livraison : ${formatGNF(order.deliveryFee ?? 0)}<br/>TVA : ${formatGNF(order.tva)}<br/>Total TTC : ${formatGNF(order.total)}</p>
-      <p>Paiement : ${order.payment.label}</p>
-      <script>window.print()</script></body></html>`);
-    w.document.close();
+    openInvoicePrint(order, {
+      contactPhone: settings.contactPhone,
+      contactEmail: settings.contactEmail,
+      address: settings.address,
+    });
   };
 
   return (

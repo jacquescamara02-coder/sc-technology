@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAdminData } from "@/lib/admin-store";
 import { useOrders, generateOrderId, type Order } from "@/lib/orders-store";
 import { formatGNF } from "@/lib/data";
+import { openInvoicePrint } from "@/lib/invoice-template";
 
 export const Route = createFileRoute("/admin/invoice")({
   component: ManualInvoicePage,
@@ -39,7 +40,7 @@ function ManualInvoicePage() {
 
   const subtotal = items.reduce((a, i) => a + i.qty * i.price, 0);
   const total = subtotal + deliveryFee + tva;
-  void settings;
+  
 
   const productOptions = useMemo(
     () => products.filter((p) => p.active),
@@ -110,73 +111,11 @@ function ManualInvoicePage() {
       toast.error(err);
       return;
     }
-    const order = buildOrder();
-    const w = window.open("", "_blank");
-    if (!w) return;
-    const rows = order.items
-      .map(
-        (i) =>
-          `<tr><td>${escape(i.name)}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${formatGNF(i.price)}</td><td style="text-align:right">${formatGNF(i.price * i.qty)}</td></tr>`,
-      )
-      .join("");
-    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Facture ${order.id}</title>
-      <style>
-      body{font-family:system-ui,Segoe UI,Roboto;padding:32px;color:#0f172a;max-width:780px;margin:auto}
-      .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:16px;margin-bottom:24px}
-      .brand{font-size:24px;font-weight:800;letter-spacing:-0.02em}
-      .sub{color:#475569;font-size:12px}
-      h2{margin:24px 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#475569}
-      table{width:100%;border-collapse:collapse;margin-top:8px}
-      th,td{padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:13px}
-      th{background:#f8fafc;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#475569}
-      .totals{margin-top:16px;margin-left:auto;width:300px}
-      .totals .row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
-      .totals .grand{border-top:2px solid #0f172a;font-weight:800;font-size:16px;padding-top:10px;margin-top:6px}
-      .pay{margin-top:24px;padding:12px;background:#f8fafc;border-radius:8px;font-size:12px}
-      .foot{margin-top:32px;text-align:center;color:#64748b;font-size:11px}
-      </style></head><body>
-      <div class="head">
-        <div>
-          <div class="brand">SC TECHNOLOGIE</div>
-          <div class="sub">${escape(settings.address)}</div>
-          <div class="sub">${escape(settings.contactPhone)} • ${escape(settings.contactEmail)}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:18px;font-weight:700">FACTURE</div>
-          <div class="sub">N° ${order.id}</div>
-          <div class="sub">${new Date(order.createdAt).toLocaleDateString("fr-FR")}</div>
-        </div>
-      </div>
-
-      <h2>Client</h2>
-      <div style="font-size:13px;line-height:1.5">
-        <strong>${escape(customer.fullName)}</strong><br/>
-        ${escape(customer.phone)}${customer.email ? " • " + escape(customer.email) : ""}<br/>
-        ${escape(customer.address)}${customer.district ? ", " + escape(customer.district) : ""}, ${escape(customer.city)}
-      </div>
-
-      <h2>Détails</h2>
-      <table>
-        <thead><tr><th>Produit</th><th style="text-align:center">Qté</th><th style="text-align:right">PU</th><th style="text-align:right">Total</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-
-      <div class="totals">
-        <div class="row"><span>Sous-total</span><strong>${formatGNF(subtotal)} GNF</strong></div>
-        <div class="row"><span>Livraison</span><strong>${formatGNF(deliveryFee)} GNF</strong></div>
-        <div class="row"><span>TVA</span><strong>${formatGNF(tva)} GNF</strong></div>
-        <div class="row grand"><span>Total TTC</span><span>${formatGNF(total)} GNF</span></div>
-      </div>
-
-      <div class="pay">
-        <strong>Mode de paiement :</strong> ${escape(paymentLabel)}<br/>
-        <strong>Orange Money marchand :</strong> 610-95-38-38 • SC TECHNOLOGIE
-      </div>
-
-      <div class="foot">Merci de votre confiance — SC TECHNOLOGIE • Guinée</div>
-      <script>window.print()</script>
-      </body></html>`);
-    w.document.close();
+    openInvoicePrint(buildOrder(), {
+      contactPhone: settings.contactPhone,
+      contactEmail: settings.contactEmail,
+      address: settings.address,
+    });
   };
 
   return (
@@ -366,6 +305,3 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function escape(s: string) {
-  return (s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
-}
