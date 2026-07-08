@@ -540,7 +540,7 @@ export function useSupabaseSync() {
             if (!existed) {
               useOrderNotifications.getState().addUnread(id);
               if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
-                const name = payload.new?.customer_name || "Nouveau client";
+                const name = payload.new?.delivery?.fullName || "Nouveau client";
                 const total = typeof payload.new?.total === "number" ? payload.new.total : null;
                 toast.success("Nouvelle commande reçue 🎉", {
                   description: total
