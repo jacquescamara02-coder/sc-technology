@@ -19,9 +19,13 @@ import {
   Images,
   FileText,
   Bell,
+  ShoppingCart,
 } from "lucide-react";
 import { Toaster } from "sonner";
 import { useAdminAuth, useAdminData } from "@/lib/admin-store";
+import { useOrders, formatDate } from "@/lib/orders-store";
+import { useOrderNotifications } from "@/lib/order-notifications";
+import { formatGNF } from "@/lib/data";
 import { useLowStockAlerts, isLowStock, isOutOfStock } from "@/lib/use-low-stock-alerts";
 import logoUrl from "@/assets/sc-logo.png";
 
