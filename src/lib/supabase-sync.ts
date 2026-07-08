@@ -533,7 +533,25 @@ export function useSupabaseSync() {
         .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
           void refreshProducts();
         })
-        .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+        .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, (payload: any) => {
+          if (payload?.eventType === "INSERT" && payload?.new?.id) {
+            const id = String(payload.new.id);
+            const existed = useOrders.getState().orders.some((o) => o.id === id);
+            if (!existed) {
+              useOrderNotifications.getState().addUnread(id);
+              if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
+                const name = payload.new?.customer_name || "Nouveau client";
+                const total = typeof payload.new?.total === "number" ? payload.new.total : null;
+                toast.success("Nouvelle commande reçue 🎉", {
+                  description: total
+                    ? `${name} — ${total.toLocaleString("fr-FR")} GNF`
+                    : name,
+                  duration: 8000,
+                });
+                playNotificationSound();
+              }
+            }
+          }
           void refreshOrders();
         })
         .subscribe();
