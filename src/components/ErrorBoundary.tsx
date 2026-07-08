@@ -1,13 +1,13 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 
 interface Props { children: ReactNode; }
-interface State { hasError: boolean; }
+interface State { hasError: boolean; errorMessage?: string; }
 
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false };
 
-  static getDerivedStateFromError(): State {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, errorMessage: (error?.message || "Unknown error") + "\n" + (error?.stack || "") };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -28,6 +28,9 @@ export class ErrorBoundary extends Component<Props, State> {
             <p style={{ margin: "0 0 1rem", color: "#cbd5e1" }}>
               La boutique n'a pas pu s'afficher correctement.
             </p>
+            <pre style={{ textAlign: "left", background: "#0b1220", color: "#f87171", padding: "0.75rem", borderRadius: 8, fontSize: "0.7rem", overflow: "auto", maxHeight: "40vh", whiteSpace: "pre-wrap" }}>
+              {this.state.errorMessage}
+            </pre>
             <button
               type="button"
               onClick={() => window.location.reload()}
