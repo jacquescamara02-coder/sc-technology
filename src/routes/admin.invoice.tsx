@@ -305,6 +305,3 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function escape(s: string) {
-  return (s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
-}
