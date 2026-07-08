@@ -73,7 +73,7 @@ const bootRecoveryScript = `
       if((" "+html.className+" ").indexOf(" sc-app-ready ")===-1){html.className=(html.className?html.className+" ":"")+"sc-app-ready";}
       html.setAttribute("data-sc-force-ready","true");
       var node=bootNode();
-      if(node){node.setAttribute("aria-hidden","true");node.style.setProperty("display","none","important");setTimeout(function(){try{node.remove();}catch(e){}},260);}
+      if(node){node.setAttribute("aria-hidden","true");}
     }catch(e){}
   }
   function appLooksVisible(){
