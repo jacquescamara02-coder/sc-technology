@@ -289,7 +289,6 @@ function RootComponent() {
       if (boot) {
         boot.setAttribute("aria-hidden", "true");
         boot.style.setProperty("display", "none", "important");
-        window.setTimeout(() => boot.remove(), 260);
       }
     };
     reveal();
