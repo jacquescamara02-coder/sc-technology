@@ -131,9 +131,16 @@ function OrderSuccessPage() {
         >
           Suivre ma commande
         </Link>
+        <button
+          type="button"
+          onClick={() => openInvoicePrint(order)}
+          className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-primary bg-card text-sm font-bold text-primary"
+        >
+          <Printer className="h-4 w-4" /> Télécharger la facture
+        </button>
         <Link
           to="/"
-          className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card text-sm font-bold text-foreground"
+          className="sm:col-span-2 flex h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card text-sm font-bold text-foreground"
         >
           Continuer les achats
         </Link>
