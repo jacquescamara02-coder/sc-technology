@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAdminData } from "@/lib/admin-store";
 import { useOrders, generateOrderId, type Order } from "@/lib/orders-store";
 import { formatGNF } from "@/lib/data";
+import { openInvoicePrint } from "@/lib/invoice-template";
 
 export const Route = createFileRoute("/admin/invoice")({
   component: ManualInvoicePage,
