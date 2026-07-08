@@ -40,7 +40,7 @@ function ManualInvoicePage() {
 
   const subtotal = items.reduce((a, i) => a + i.qty * i.price, 0);
   const total = subtotal + deliveryFee + tva;
-  void settings;
+  
 
   const productOptions = useMemo(
     () => products.filter((p) => p.active),
