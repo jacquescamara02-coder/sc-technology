@@ -85,7 +85,7 @@ workflows:
       - name: Bump build number
         script: |
           cd ios/App
-          NEW=$(git rev-list --count HEAD)
+          NEW=$(($(agvtool what-version -terse) + 1))
           agvtool new-version -all $NEW
           echo "NEW=$NEW" >> $CM_ENV
           cd ../..
