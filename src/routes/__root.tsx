@@ -92,8 +92,8 @@ const bootRecoveryScript = `
   }
   function watchReady(){
     try{
-      if(appLooksVisible()){setTimeout(markReady,1800);return;}
-      if(Date.now()-started>1800){markReady();return;}
+      if(appLooksVisible() && Date.now()-started>6500){markReady();return;}
+      if(Date.now()-started>6500){markReady();return;}
       setTimeout(watchReady,180);
     }catch(e){}
   }
