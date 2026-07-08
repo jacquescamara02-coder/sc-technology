@@ -1,0 +1,17 @@
+diff --git a/node_modules/@tanstack/router-core/dist/cjs/ssr/ssr-client.cjs b/node_modules/@tanstack/router-core/dist/cjs/ssr/ssr-client.cjs
+index 60fe68b..6787439 100644
+--- a/node_modules/@tanstack/router-core/dist/cjs/ssr/ssr-client.cjs
++++ b/node_modules/@tanstack/router-core/dist/cjs/ssr/ssr-client.cjs
+@@ -155,9 +155,9 @@ async function hydrate(router) {
+ 	if (isSpaMode) {
+ 		const match = matches[1];
+ 		if (!match) {
+-			if (process.env.NODE_ENV !== "production") throw new Error("Invariant failed: Expected to find a match below the root match in SPA mode.");
+-			require_invariant.invariant();
+-		}
++            console.warn("SPA hydration: no match available for pending state");
++            return routeChunkPromise;
++          }
+ 		setMatchForcePending(match);
+ 		match._displayPending = true;
+ 		match._nonReactive.displayPendingPromise = loadPromise;
