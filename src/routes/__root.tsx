@@ -230,7 +230,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className="dark">
+    <html lang="fr" className="dark" suppressHydrationWarning>
       <head>
         {/* Critical fallback: guarantees the page is never pure black/white,
             even before the stylesheet loads or on very old browsers. */}
@@ -243,7 +243,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <div id="sc-static-boot" role="status" aria-live="polite">
+        <div id="sc-static-boot" role="status" aria-live="polite" suppressHydrationWarning>
           <div className="sc-static-boot-card">
             <img className="sc-static-boot-logo" src="/app-icon.png" alt="SC TECHNOLOGIE" width="72" height="72" />
             <div className="sc-static-boot-loader" aria-hidden="true" />
