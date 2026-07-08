@@ -181,6 +181,7 @@ const STOREFRONT_PRODUCT_COLUMNS = [
   "sku",
   "description",
   "specs",
+  "images",
   "active",
   "featured",
   "is_new",
