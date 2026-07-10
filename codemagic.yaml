@@ -13,17 +13,7 @@ workflows:
         script: npm install
       - name: Build web
         script: |
-          npx vite build
-          rm -rf mobile-dist/client
-          mkdir -p mobile-dist
-          if [ -d "dist/client" ]; then
-            cp -r dist/client mobile-dist/client
-          elif [ -d ".output/public" ]; then
-            cp -r .output/public mobile-dist/client
-          else
-            echo "ERROR: no client build output found (checked dist/client and .output/public)"
-            exit 1
-          fi
+          npm run build:mobile
       - name: Create native index.html
         script: |
           python3 - <<'PY'
