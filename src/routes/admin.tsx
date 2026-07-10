@@ -19,9 +19,13 @@ import {
   Images,
   FileText,
   Bell,
+  ShoppingCart,
 } from "lucide-react";
 import { Toaster } from "sonner";
 import { useAdminAuth, useAdminData } from "@/lib/admin-store";
+import { useOrders, formatDate } from "@/lib/orders-store";
+import { useOrderNotifications } from "@/lib/order-notifications";
+import { formatGNF } from "@/lib/data";
 import { useLowStockAlerts, isLowStock, isOutOfStock } from "@/lib/use-low-stock-alerts";
 import logoUrl from "@/assets/sc-logo.png";
 
@@ -47,6 +51,17 @@ function AdminLayout() {
   const products = useAdminData((s) => s.products);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [ordersOpen, setOrdersOpen] = useState(false);
+  const orders = useOrders((s) => s.orders);
+  const unreadIds = useOrderNotifications((s) => s.unreadIds);
+  const markAllRead = useOrderNotifications((s) => s.markAllRead);
+  const unreadOrders = useMemo(
+    () => unreadIds
+      .map((id) => orders.find((o) => o.id === id))
+      .filter((o): o is NonNullable<typeof o> => Boolean(o)),
+    [unreadIds, orders],
+  );
+  const unreadCount = unreadOrders.length;
 
   useLowStockAlerts();
 
@@ -69,6 +84,12 @@ function AdminLayout() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const base = "SC TECHNOLOGIE — Administration";
+    document.title = unreadCount > 0 ? `(${unreadCount}) 🔔 Nouvelle commande — ${base}` : base;
+  }, [unreadCount]);
 
   const handleLogout = async () => {
     await logout();
@@ -154,6 +175,94 @@ function AdminLayout() {
               SC TECHNOLOGIE — Administration
             </h1>
             <div className="ml-auto flex items-center gap-3">
+              {/* Notifications de commandes */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setOrdersOpen((v) => !v)}
+                  className={
+                    "relative p-2 rounded-lg border text-slate-700 " +
+                    (unreadCount > 0
+                      ? "border-blue-300 bg-blue-50 hover:bg-blue-100 animate-pulse"
+                      : "border-slate-200 hover:bg-slate-50")
+                  }
+                  aria-label="Nouvelles commandes"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {ordersOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setOrdersOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <p className="text-sm font-semibold">Nouvelles commandes</p>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={() => markAllRead()}
+                            className="text-xs font-medium text-blue-600 hover:underline"
+                          >
+                            Tout marquer lu
+                          </button>
+                        )}
+                      </div>
+                      {unreadCount === 0 ? (
+                        <div className="p-6 text-center text-sm text-slate-500">
+                          Aucune nouvelle commande
+                        </div>
+                      ) : (
+                        <ul className="max-h-96 overflow-auto divide-y divide-slate-100">
+                          {unreadOrders.slice(0, 15).map((o) => (
+                            <li key={o.id}>
+                              <Link
+                                to="/admin/orders"
+                                onClick={() => {
+                                  setOrdersOpen(false);
+                                  markAllRead();
+                                }}
+                                className="block px-4 py-3 hover:bg-slate-50"
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-sm font-semibold text-slate-900 truncate">
+                                    {o.delivery.fullName}
+                                  </p>
+                                  <span className="text-xs font-bold text-blue-600 whitespace-nowrap">
+                                    {formatGNF(o.total)}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between gap-2 mt-0.5">
+                                  <p className="text-xs text-slate-500 truncate">
+                                    {o.id} · {o.delivery.city} · {o.items.reduce((a, i) => a + i.qty, 0)} article{o.items.length > 1 ? "s" : ""}
+                                  </p>
+                                  <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                                    {formatDate(o.createdAt)}
+                                  </span>
+                                </div>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="px-4 py-2 border-t border-slate-100 bg-slate-50">
+                        <Link
+                          to="/admin/orders"
+                          onClick={() => {
+                            setOrdersOpen(false);
+                            markAllRead();
+                          }}
+                          className="text-xs font-medium text-blue-600 hover:underline"
+                        >
+                          Voir toutes les commandes →
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
               <div className="relative">
                 <button
                   type="button"

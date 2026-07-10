@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { CheckCircle2, Package, MapPin, CreditCard, Smartphone, Clock } from "lucide-react";
+import { CheckCircle2, Package, MapPin, CreditCard, Smartphone, Clock, Printer } from "lucide-react";
 import { useOrders, estimatedDelivery } from "@/lib/orders-store";
 import { formatGNF } from "@/lib/data";
+import { openInvoicePrint } from "@/lib/invoice-template";
 
 const searchSchema = z.object({ id: z.string().optional() });
 
@@ -130,9 +131,16 @@ function OrderSuccessPage() {
         >
           Suivre ma commande
         </Link>
+        <button
+          type="button"
+          onClick={() => openInvoicePrint(order)}
+          className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-primary bg-card text-sm font-bold text-primary"
+        >
+          <Printer className="h-4 w-4" /> Télécharger la facture
+        </button>
         <Link
           to="/"
-          className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card text-sm font-bold text-foreground"
+          className="sm:col-span-2 flex h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card text-sm font-bold text-foreground"
         >
           Continuer les achats
         </Link>

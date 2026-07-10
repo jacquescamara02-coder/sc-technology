@@ -19,6 +19,7 @@ import {
   type PaymentMethod,
   type Order,
 } from "@/lib/orders-store";
+import { supabase } from "@/integrations/supabase/client";
 import orangeMoneyQr from "@/assets/orange-money-qr.jpeg";
 
 export const Route = createFileRoute("/checkout_/payment")({
@@ -132,6 +133,25 @@ function PaymentPage() {
     };
 
     addOrder(order);
+
+    // Persist directement dans la base pour que l'admin reçoive la commande en temps réel
+    try {
+      const { error: insertError } = await supabase.from("orders").insert({
+        id: order.id,
+        status: order.status,
+        items: order.items,
+        subtotal: order.subtotal,
+        tva: order.tva,
+        total: order.total,
+        delivery: { ...order.delivery, deliveryFee: order.deliveryFee ?? 0 },
+        payment: order.payment,
+        created_at: new Date(order.createdAt).toISOString(),
+      } as any);
+      if (insertError) console.error("[checkout] order insert failed", insertError);
+    } catch (err) {
+      console.error("[checkout] order insert threw", err);
+    }
+
     clearCart();
     setSubmitting(false);
     navigate({ to: "/order-success", search: { id: order.id } });
