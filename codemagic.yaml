@@ -13,7 +13,7 @@ workflows:
         script: npm install
       - name: Build web
         script: |
-          npm run build:mobile
+          npm run build
       - name: Create native index.html
         script: |
           python3 - <<'PY'
