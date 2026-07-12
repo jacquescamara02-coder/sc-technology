@@ -11,10 +11,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FileManager.default.changeCurrentDirectoryPath("/")
 
         // Enable Safari Web Inspector on the Capacitor WebView (iOS 16.4+).
-        if let bridgeVC = window?.rootViewController as? CAPBridgeViewController,
-           let webView = bridgeVC.webView {
-            if #available(iOS 16.4, *) {
-                webView.isInspectable = true
+        // Deferred to the next run loop tick because the WebView is not yet
+        // created at this point (viewDidLoad hasn't fired).
+        DispatchQueue.main.async {
+            if let bridgeVC = self.window?.rootViewController as? CAPBridgeViewController,
+               let webView = bridgeVC.webView {
+                if #available(iOS 16.4, *) {
+                    webView.isInspectable = true
+                }
             }
         }
 
