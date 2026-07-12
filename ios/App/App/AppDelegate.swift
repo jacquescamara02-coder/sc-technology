@@ -9,6 +9,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Keep Capacitor's local file router stable on iPadOS/iOS WebViews.
         FileManager.default.changeCurrentDirectoryPath("/")
+
+        // Enable Safari Web Inspector on the Capacitor WebView (iOS 16.4+).
+        if let bridgeVC = window?.rootViewController as? CAPBridgeViewController,
+           let webView = bridgeVC.webView {
+            if #available(iOS 16.4, *) {
+                webView.isInspectable = true
+            }
+        }
+
         return true
     }
 
