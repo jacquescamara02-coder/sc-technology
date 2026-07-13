@@ -19,7 +19,7 @@ workflows:
           python3 - <<'PY'
           from pathlib import Path
 
-          assets = Path('mobile-dist/client/assets')
+          assets = Path('mobile-dist/client/client/assets')
           entry = None
           for candidate in sorted(assets.glob('*.js')):
               text = candidate.read_text(errors='ignore')
@@ -40,7 +40,7 @@ workflows:
           css = sorted(assets.glob('styles-*.css'))
           style_tag = f'<link rel="stylesheet" href="./assets/{css[0].name}">' if css else ''
 
-          Path('mobile-dist/client/index.html').write_text(f'''<!DOCTYPE html>
+          Path('mobile-dist/client/client/index.html').write_text(f'''<!DOCTYPE html>
           <html lang="fr" class="dark">
           <head>
           <meta charset="UTF-8">
