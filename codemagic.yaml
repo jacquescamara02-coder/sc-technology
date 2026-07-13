@@ -31,11 +31,15 @@ workflows:
               raise SystemExit('Native build failed: React entry bundle not found')
 
           js = entry.read_text(errors='ignore')
+        print('DEBUG avant - Invariant present:', 'Invariant failed' in js)
+        print('DEBUG avant - hydrateRoot present:', 'hydrateRoot(document' in js)
           js = js.replace(
               'throw new Error("Invariant failed: Expected to find a match below the root match in SPA mode.");',
               'console.warn("SPA hydration fallback");',
           )
           entry.write_text(js)
+        print('DEBUG apres - Invariant present:', 'Invariant failed' in js)
+        print('DEBUG apres - hydrateRoot present:', 'hydrateRoot(document' in js)
 
           css = sorted(assets.glob('styles-*.css'))
           style_tag = f'<link rel="stylesheet" href="./assets/{css[0].name}">' if css else ''
