@@ -32,6 +32,7 @@ workflows:
 
           js = entry.read_text(errors='ignore')
           print('DEBUG avant - Invariant present:', 'Invariant failed' in js)
+          import re as _re; _m = _re.search(r'.{0,40}Invariant failed.{0,100}', js); print('DEBUG CONTEXTE:', repr(_m.group(0)) if _m else 'AUCUNE OCCURRENCE')
           print('DEBUG avant - hydrateRoot present:', 'hydrateRoot(document' in js)
           js = js.replace(
               'throw new Error("Invariant failed: Expected to find a match below the root match in SPA mode.");',
