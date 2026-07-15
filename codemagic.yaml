@@ -47,6 +47,8 @@ workflows:
           css = sorted(assets.glob('styles-*.css'))
           style_tag = f'<link rel="stylesheet" href="./assets/{css[0].name}">' if css else ''
 
+          _orig = Path('mobile-dist/client/client/index.html').read_text(errors='ignore') if Path('mobile-dist/client/client/index.html').exists() else 'FICHIER ABSENT'
+          print('DEBUG ORIGINAL INDEX.HTML:', _orig[:2000])
           Path('mobile-dist/client/client/index.html').write_text(f'''<!DOCTYPE html>
           <html lang="fr" class="dark">
           <head>
