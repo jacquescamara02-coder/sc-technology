@@ -22,6 +22,8 @@ workflows:
           assets = Path('mobile-dist/client/client/assets')
           entry = None
           for candidate in sorted(assets.glob('*.js')):
+              _found = list(Path('mobile-dist').rglob('index.html'))
+              print('DEBUG index.html trouves:', [str(x) for x in _found])
               text = candidate.read_text(errors='ignore')
               if 'hydrateRoot(document' in text:
                   entry = candidate
