@@ -363,20 +363,7 @@ async function loadFullProductsForAdmin() {
 }
 
 function prioritizeImageHydration(products: AdminProduct[]) {
-  return [...products]
-    .filter((p) => p.active)
-    .sort((a, b) => {
-      const aFeatured = a.featured ? 1 : 0;
-      const bFeatured = b.featured ? 1 : 0;
-      if (aFeatured !== bFeatured) return bFeatured - aFeatured;
-      const aNew = a.isNew ? 1 : 0;
-      const bNew = b.isNew ? 1 : 0;
-      if (aNew !== bNew) return bNew - aNew;
-      const popularity = (b.popularity ?? 0) - (a.popularity ?? 0);
-      if (popularity !== 0) return popularity;
-      return (b.createdAt ?? 0) - (a.createdAt ?? 0);
-    })
-    .map((p) => p.id);
+  return products.filter((p) => p.active).map((p) => p.id);
 }
 
 function mergeProductImages(productId: string, images: string[]) {
@@ -401,7 +388,7 @@ async function loadProductImagesInBackground(priorityProducts?: AdminProduct[]) 
   if (ids.length === 0) return;
 
   let cursor = 0;
-  const CONCURRENCY = 3;
+  const CONCURRENCY = 6;
   const worker = async () => {
     while (cursor < ids.length) {
       const id = ids[cursor++];
