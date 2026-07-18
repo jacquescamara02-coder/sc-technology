@@ -85,6 +85,16 @@ class SelectBuilder<T = any> implements PromiseLike<DbResult<T>> {
     return this;
   }
 
+  limit(n: number) {
+    this.params.set("limit", String(n));
+    return this;
+  }
+
+  offset(n: number) {
+    this.params.set("offset", String(n));
+    return this;
+  }
+
   maybeSingle() {
     this.wantsSingle = true;
     return this as unknown as PromiseLike<DbResult<T extends Array<infer U> ? U : T>>;
