@@ -193,7 +193,11 @@ const STOREFRONT_PRODUCT_COLUMNS = [
   "sku",
   "description",
   "specs",
-  "images",
+  // NOTE: `images` intentionally excluded here. Some rows store very large
+  // base64-encoded images that cause the products SELECT to hit the database
+  // statement timeout (500 "canceling statement due to statement timeout"),
+  // leaving the storefront with zero products. Images are streamed in
+  // afterwards by `loadProductImagesInBackground()` in paginated chunks.
   "active",
   "featured",
   "is_new",
