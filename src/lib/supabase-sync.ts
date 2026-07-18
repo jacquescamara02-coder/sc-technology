@@ -266,6 +266,22 @@ function diffById<T extends { id: string }>(prev: T[], next: T[]) {
 
 // ------------ initial load + seed ------------
 
+
+async function withRetry<T>(fn: () => PromiseLike<T>, retries = 2, delayMs = 500): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < retries) {
+        await new Promise((res) => setTimeout(res, delayMs * (attempt + 1)));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 async function loadStorefrontFromSupabase() {
   try {
     const [prodRes, catRes, subRes, heroRes, settingsRes] =
@@ -273,7 +289,7 @@ async function loadStorefrontFromSupabase() {
         // Do not pull product images during the first storefront boot. Some
         // rows contain very large inline images, which made private-mode
         // launches wait several seconds before categories/products appeared.
-        supabase.from("products").select(STOREFRONT_PRODUCT_COLUMNS),
+        withRetry(() => supabase.from("products").select(STOREFRONT_PRODUCT_COLUMNS)),
         supabase.from("categories").select("*").order("position"),
         supabase.from("subcategories").select("*").order("position"),
         supabase.from("hero_slides").select("*").order("position"),
