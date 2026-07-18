@@ -85,6 +85,11 @@ class SelectBuilder<T = any> implements PromiseLike<DbResult<T>> {
     return this;
   }
 
+  in(column: string, values: string[]) {
+    this.params.set(column, `in.(${values.join(",")})`);
+    return this;
+  }
+
   limit(n: number) {
     this.params.set("limit", String(n));
     return this;
@@ -209,6 +214,23 @@ const STOREFRONT_PRODUCT_COLUMNS = [
   "created_at",
 ].join(",");
 
+const PRODUCT_IMAGE_COLUMNS = "id,images";
+
+function isAdminRoute() {
+  return typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+}
+
+let applyingRemoteState = false;
+
+function applyRemoteState(update: () => void) {
+  applyingRemoteState = true;
+  try {
+    update();
+  } finally {
+    applyingRemoteState = false;
+  }
+}
+
 function productToRow(p: AdminProduct): ProductRow {
   return {
     id: p.id,
@@ -261,6 +283,19 @@ function rowToProduct(r: ProductRow): AdminProduct {
     facebookPostedAt: r.facebook_posted_at ?? undefined,
     facebookStatus: (r.facebook_status as AdminProduct["facebookStatus"]) ?? undefined,
   };
+}
+
+function rowsToProducts(rows: ProductRow[], preserveExistingImages = true): AdminProduct[] {
+  const previous = preserveExistingImages
+    ? new Map(useAdminData.getState().products.map((p) => [p.id, p.images]))
+    : new Map<string, string[]>();
+
+  return rows.map((row) => {
+    const product = rowToProduct(row);
+    if (Array.isArray(row.images)) return product;
+    const existingImages = previous.get(product.id);
+    return existingImages?.length ? { ...product, images: existingImages } : product;
+  });
 }
 
 // ------------ diff helper ------------
@@ -320,48 +355,59 @@ async function loadStorefrontFromSupabase() {
 async function loadFullProductsForAdmin() {
   const { data } = await supabase.from("products").select("*");
   if (!data) return;
-  useAdminData.setState({
-    products: (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow)),
+  applyRemoteState(() => {
+    useAdminData.setState({
+      products: rowsToProducts(data as ProductRow[], false),
+    });
   });
 }
 
-// Paginated background loader: fetch product images in small chunks so the
-// database statement timeout never fires on a huge base64 payload. Merges
-// image URLs into the already-populated storefront products as each page
-// arrives so users see them progressively.
-async function loadProductImagesInBackground() {
-  const PAGE = 30;
-  let offset = 0;
-  while (true) {
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id,images")
-        .order("id")
-        .limit(PAGE)
-        .offset(offset);
-      if (error || !data) break;
-      const rows = data as { id: string; images: unknown }[];
-      if (rows.length === 0) break;
-      const byId = new Map<string, string[]>();
-      for (const r of rows) byId.set(r.id, Array.isArray(r.images) ? (r.images as string[]) : []);
-      const current = useAdminData.getState().products;
-      let changed = false;
-      const next = current.map((p) => {
-        if (!byId.has(p.id)) return p;
-        const imgs = byId.get(p.id)!;
-        if (p.images.length === imgs.length && p.images.every((x, i) => x === imgs[i])) return p;
-        changed = true;
-        return { ...p, images: imgs };
-      });
-      if (changed) useAdminData.setState({ products: next });
-      if (rows.length < PAGE) break;
-      offset += PAGE;
-    } catch (err) {
-      console.error("[supabase-sync] image page failed", err);
-      break;
-    }
+function prioritizeImageHydration(products: AdminProduct[]) {
+  return products.filter((p) => p.active).map((p) => p.id);
+}
+
+function mergeProductImages(productId: string, images: string[]) {
+  const current = useAdminData.getState().products;
+  const existing = current.find((p) => p.id === productId);
+  if (!existing) return;
+  if (existing.images.length === images.length && existing.images.every((img, index) => img === images[index])) {
+    return;
   }
+  applyRemoteState(() => {
+    useAdminData.setState({
+      products: current.map((p) => (p.id === productId ? { ...p, images } : p)),
+    });
+  });
+}
+
+// Fetch images one product at a time, with light concurrency. This avoids the
+// huge multi-MB JSON response that was timing out the storefront and lets the
+// first visible product photos appear progressively.
+async function loadProductImagesInBackground(priorityProducts?: AdminProduct[]) {
+  const ids = prioritizeImageHydration(priorityProducts?.length ? priorityProducts : useAdminData.getState().products);
+  if (ids.length === 0) return;
+
+  let cursor = 0;
+  const CONCURRENCY = 6;
+  const worker = async () => {
+    while (cursor < ids.length) {
+      const id = ids[cursor++];
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select(PRODUCT_IMAGE_COLUMNS)
+          .eq("id", id)
+          .maybeSingle();
+        if (error || !data) continue;
+        const row = data as { id: string; images: unknown };
+        mergeProductImages(row.id, Array.isArray(row.images) ? (row.images as string[]) : []);
+      } catch (err) {
+        console.error("[supabase-sync] product image failed", id, err);
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, ids.length) }, () => worker()));
 }
 
 async function loadSecondaryFromSupabase() {
@@ -513,9 +559,7 @@ export function useSupabaseSync() {
               .filter((s: any) => s.category_id === c.id)
               .map((s: any) => ({ id: (s.id as string).split("__").slice(1).join("__") || (s.id as string), name: s.name as string })),
           }));
-          const products: AdminProduct[] = (prodRes.data ?? []).map((r: any) =>
-            rowToProduct(r as unknown as ProductRow),
-          );
+          const products: AdminProduct[] = rowsToProducts((prodRes.data ?? []) as ProductRow[], false);
           const heroSlides: HeroSlide[] = (heroRes.data ?? []).map((h: any) => ({
             id: h.id as string,
             title: (h.title as string) ?? "",
@@ -534,10 +578,12 @@ export function useSupabaseSync() {
             ...remoteData,
             heroSlides,
           };
-          useAdminData.setState({
-            products,
-            categories: cats,
-            settings,
+          applyRemoteState(() => {
+            useAdminData.setState({
+              products,
+              categories: cats,
+              settings,
+            });
           });
         }
 
@@ -545,7 +591,7 @@ export function useSupabaseSync() {
         // data (orders/facebook history) finishes loading.
         useSyncStatus.getState().markLoaded();
 
-        if (window.location.pathname.startsWith("/admin")) {
+        if (isAdminRoute()) {
           try {
             await loadFullProductsForAdmin();
           } catch (fullErr) {
@@ -553,14 +599,16 @@ export function useSupabaseSync() {
           }
         } else {
           // Progressively hydrate product images on the public storefront.
-          void loadProductImagesInBackground();
+          window.setTimeout(() => void loadProductImagesInBackground(useAdminData.getState().products), 80);
         }
 
-        if (window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/orders")) {
+        if (isAdminRoute() || window.location.pathname.startsWith("/orders")) {
           try {
             const { ordersRes, fbRes } = await loadSecondaryFromSupabase();
-            useAdminData.setState({ facebookPosts: rowsToFacebookPosts(fbRes.data) });
-            useOrders.setState({ orders: rowsToOrders(ordersRes.data) });
+            applyRemoteState(() => {
+              useAdminData.setState({ facebookPosts: rowsToFacebookPosts(fbRes.data) });
+              useOrders.setState({ orders: rowsToOrders(ordersRes.data) });
+            });
           } catch (secondaryErr) {
             console.error("[supabase-sync] secondary load failed", secondaryErr);
           }
@@ -583,6 +631,10 @@ export function useSupabaseSync() {
     // subscribe admin store
     const unsubAdmin = useAdminData.subscribe((next) => {
       if (!inited.current) return;
+      if (applyingRemoteState || !isAdminRoute()) {
+        prevAdminRef.current = next;
+        return;
+      }
       const prev = prevAdminRef.current!;
       prevAdminRef.current = next;
       void syncAdminDelta(prev, next);
@@ -591,6 +643,10 @@ export function useSupabaseSync() {
     // subscribe orders store
     const unsubOrders = useOrders.subscribe((next) => {
       if (!inited.current) return;
+      if (applyingRemoteState || !isAdminRoute()) {
+        prevOrdersRef.current = next;
+        return;
+      }
       const prev = prevOrdersRef.current!;
       prevOrdersRef.current = next;
       void syncOrdersDelta(prev.orders, next.orders);
@@ -640,11 +696,15 @@ export function useSupabaseSync() {
 }
 
 async function refreshProducts() {
-  const columns = window.location.pathname.startsWith("/admin") ? "*" : STOREFRONT_PRODUCT_COLUMNS;
+  const admin = isAdminRoute();
+  const columns = admin ? "*" : STOREFRONT_PRODUCT_COLUMNS;
   const { data } = await supabase.from("products").select(columns);
   if (!data) return;
-  const products = (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow));
-  useAdminData.setState({ products });
+  const products = rowsToProducts(data as ProductRow[], !admin);
+  applyRemoteState(() => {
+    useAdminData.setState({ products });
+  });
+  if (!admin) window.setTimeout(() => void loadProductImagesInBackground(products), 80);
 }
 
 async function refreshOrders() {
@@ -666,7 +726,9 @@ async function refreshOrders() {
       payment: o.payment as Order["payment"],
     };
   });
-  useOrders.setState({ orders });
+  applyRemoteState(() => {
+    useOrders.setState({ orders });
+  });
 }
 
 async function syncAdminDelta(
