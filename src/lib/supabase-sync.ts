@@ -85,6 +85,16 @@ class SelectBuilder<T = any> implements PromiseLike<DbResult<T>> {
     return this;
   }
 
+  limit(n: number) {
+    this.params.set("limit", String(n));
+    return this;
+  }
+
+  offset(n: number) {
+    this.params.set("offset", String(n));
+    return this;
+  }
+
   maybeSingle() {
     this.wantsSingle = true;
     return this as unknown as PromiseLike<DbResult<T extends Array<infer U> ? U : T>>;
@@ -183,7 +193,11 @@ const STOREFRONT_PRODUCT_COLUMNS = [
   "sku",
   "description",
   "specs",
-  "images",
+  // NOTE: `images` intentionally excluded here. Some rows store very large
+  // base64-encoded images that cause the products SELECT to hit the database
+  // statement timeout (500 "canceling statement due to statement timeout"),
+  // leaving the storefront with zero products. Images are streamed in
+  // afterwards by `loadProductImagesInBackground()` in paginated chunks.
   "active",
   "featured",
   "is_new",
@@ -309,6 +323,45 @@ async function loadFullProductsForAdmin() {
   useAdminData.setState({
     products: (data as any[]).map((r: any) => rowToProduct(r as unknown as ProductRow)),
   });
+}
+
+// Paginated background loader: fetch product images in small chunks so the
+// database statement timeout never fires on a huge base64 payload. Merges
+// image URLs into the already-populated storefront products as each page
+// arrives so users see them progressively.
+async function loadProductImagesInBackground() {
+  const PAGE = 30;
+  let offset = 0;
+  while (true) {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id,images")
+        .order("id")
+        .limit(PAGE)
+        .offset(offset);
+      if (error || !data) break;
+      const rows = data as { id: string; images: unknown }[];
+      if (rows.length === 0) break;
+      const byId = new Map<string, string[]>();
+      for (const r of rows) byId.set(r.id, Array.isArray(r.images) ? (r.images as string[]) : []);
+      const current = useAdminData.getState().products;
+      let changed = false;
+      const next = current.map((p) => {
+        if (!byId.has(p.id)) return p;
+        const imgs = byId.get(p.id)!;
+        if (p.images.length === imgs.length && p.images.every((x, i) => x === imgs[i])) return p;
+        changed = true;
+        return { ...p, images: imgs };
+      });
+      if (changed) useAdminData.setState({ products: next });
+      if (rows.length < PAGE) break;
+      offset += PAGE;
+    } catch (err) {
+      console.error("[supabase-sync] image page failed", err);
+      break;
+    }
+  }
 }
 
 async function loadSecondaryFromSupabase() {
@@ -498,6 +551,9 @@ export function useSupabaseSync() {
           } catch (fullErr) {
             console.error("[supabase-sync] full admin product load failed", fullErr);
           }
+        } else {
+          // Progressively hydrate product images on the public storefront.
+          void loadProductImagesInBackground();
         }
 
         if (window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/orders")) {
