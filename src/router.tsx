@@ -2,23 +2,6 @@ import { QueryClient } from "@tanstack/react-query";
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
-if (typeof window !== "undefined") {
-  window.onerror = function (message, source, lineno, colno, error) {
-    var el = document.createElement("div");
-    el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#000;color:#0f0;padding:16px;z-index:999999;font-family:monospace;font-size:12px;white-space:pre-wrap;overflow:auto;";
-    el.innerText = "ERREUR JS:\n" + message + "\nFichier: " + source + "\nLigne: " + lineno + "\n\nStack:\n" + (error && error.stack ? error.stack : "pas de stack");
-    document.body.appendChild(el);
-  };
-  window.addEventListener("unhandledrejection", function (event) {
-    var el = document.createElement("div");
-    el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#000;color:#f80;padding:16px;z-index:999999;font-family:monospace;font-size:12px;white-space:pre-wrap;overflow:auto;";
-    el.innerText = "PROMESSE REJETEE:\n" + (event.reason && event.reason.stack ? event.reason.stack : String(event.reason));
-    document.body.appendChild(el);
-  });
-}
-
-
-
 function FallbackError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   if (typeof console !== "undefined") console.error(error);
