@@ -325,6 +325,45 @@ async function loadFullProductsForAdmin() {
   });
 }
 
+// Paginated background loader: fetch product images in small chunks so the
+// database statement timeout never fires on a huge base64 payload. Merges
+// image URLs into the already-populated storefront products as each page
+// arrives so users see them progressively.
+async function loadProductImagesInBackground() {
+  const PAGE = 30;
+  let offset = 0;
+  while (true) {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id,images")
+        .order("id")
+        .limit(PAGE)
+        .offset(offset);
+      if (error || !data) break;
+      const rows = data as { id: string; images: unknown }[];
+      if (rows.length === 0) break;
+      const byId = new Map<string, string[]>();
+      for (const r of rows) byId.set(r.id, Array.isArray(r.images) ? (r.images as string[]) : []);
+      const current = useAdminData.getState().products;
+      let changed = false;
+      const next = current.map((p) => {
+        if (!byId.has(p.id)) return p;
+        const imgs = byId.get(p.id)!;
+        if (p.images.length === imgs.length && p.images.every((x, i) => x === imgs[i])) return p;
+        changed = true;
+        return { ...p, images: imgs };
+      });
+      if (changed) useAdminData.setState({ products: next });
+      if (rows.length < PAGE) break;
+      offset += PAGE;
+    } catch (err) {
+      console.error("[supabase-sync] image page failed", err);
+      break;
+    }
+  }
+}
+
 async function loadSecondaryFromSupabase() {
   try {
     const [ordersRes, fbRes] =
