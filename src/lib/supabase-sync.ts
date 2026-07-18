@@ -551,6 +551,9 @@ export function useSupabaseSync() {
           } catch (fullErr) {
             console.error("[supabase-sync] full admin product load failed", fullErr);
           }
+        } else {
+          // Progressively hydrate product images on the public storefront.
+          void loadProductImagesInBackground();
         }
 
         if (window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/orders")) {
