@@ -49,7 +49,7 @@ workflows:
           css = sorted(assets.glob('styles-*.css'))
           style_tag = f'<link rel="stylesheet" href="./assets/{css[0].name}">' if css else ''
 
-          _orig_path = Path('mobile-dist/client/index.html')
+          _orig_path = Path('mobile-dist/client/client/_shell.html')
           if not _orig_path.exists():
               raise SystemExit('Native build failed: index.html original introuvable')
           html = _orig_path.read_text(errors='ignore')
