@@ -48,6 +48,7 @@ const STEPS = [
 function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCart((s) => s.items);
+  console.log("RENDER CheckoutPage", Date.now(), "items:", items.length);
   const subtotal = items.reduce((a, i) => a + i.qty * i.product.price, 0);
   const total = subtotal;
 
