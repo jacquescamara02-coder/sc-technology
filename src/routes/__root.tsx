@@ -47,7 +47,7 @@ const criticalBootCss = `
 
 const bootRecoveryScript = `
 (function(){
-  var DARK_BG="#16213f", LIGHT_BG="#f8fafc", started=Date.now();
+  var DARK_BG="#16213f", LIGHT_BG="#f8fafc", started=Date.now(), readyMarked=false;
   function applyBase(){
     try{
       var html=document.documentElement;
@@ -67,6 +67,7 @@ const bootRecoveryScript = `
     }catch(e){}
   }
   function markReady(){
+    readyMarked=true;
     try{
       var html=document.documentElement;
       if((" "+html.className+" ").indexOf(" sc-app-ready ")===-1){html.className=(html.className?html.className+" ":"")+"sc-app-ready";}
@@ -97,6 +98,7 @@ const bootRecoveryScript = `
     }catch(e){}
   }
   function recover(){
+    if(readyMarked) return;
     setTimeout(function(){
       try{
         if(!document.body || hasVisibleApp()) return;
