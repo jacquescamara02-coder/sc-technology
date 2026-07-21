@@ -1,4 +1,4 @@
-import { ShoppingCart, Check } from "lucide-react";
+import { ShoppingCart, Check, ImageIcon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { Product } from "@/lib/data";
@@ -9,6 +9,7 @@ export function ProductCard({ product, className = "" }: { product: Product; cla
   const add = useCart((s) => s.add);
   const [added, setAdded] = useState(false);
   const inStock = product.stock > 0;
+  const hasRealImage = product.image.startsWith("url(");
 
   const handleAdd = () => {
     if (!inStock) return;
@@ -24,11 +25,19 @@ export function ProductCard({ product, className = "" }: { product: Product; cla
       <Link
         to="/product/$productId"
         params={{ productId: product.id }}
-        className="relative block aspect-square overflow-hidden bg-cover bg-center"
-        style={{ backgroundImage: product.image }}
+        className="relative block aspect-square overflow-hidden bg-surface-elevated bg-cover bg-center"
+        style={hasRealImage ? { backgroundImage: product.image } : undefined}
         aria-label={`Voir ${product.name}`}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
+        {hasRealImage ? (
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center bg-card">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl border border-border bg-background/70 text-muted-foreground">
+              <ImageIcon className="h-7 w-7" />
+            </div>
+          </div>
+        )}
         {product.badge && (
           <span
             className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${

@@ -30,7 +30,7 @@ const criticalBootCss = `
   html:not(.dark),html:not(.dark) body{background-color:#f8fafc;color:#0f172b;color-scheme:light;}
   body:empty::before{content:"SC TECHNOLOGIE";display:grid;place-items:center;min-height:100vh;color:#f8fafc;font-weight:800;letter-spacing:.08em;}
   a{color:inherit;text-decoration:none;}img,svg{max-width:100%;}button,input,textarea,select{font:inherit;}header{position:sticky;top:0;z-index:40;}main{max-width:768px;margin-inline:auto;}section{margin-block:1.25rem;}
-  #sc-static-boot{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;background:#16213f;background-image:radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 45%,#0b1220 100%);color:#f8fafc;text-align:center;transition:opacity .24s ease,visibility .24s ease;}
+  #sc-static-boot{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;background:#16213f;background-image:radial-gradient(ellipse at top,#1c3b7a 0%,#16213f 45%,#0b1220 100%);color:#f8fafc;text-align:center;transition:opacity .24s ease,visibility .24s ease;animation:sc-boot-auto-hide .01s linear 1.8s forwards;}
   html.sc-app-ready #sc-static-boot,html[data-sc-force-ready="true"] #sc-static-boot{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
   .sc-static-boot-card{width:min(100%,28rem);}
   .sc-static-boot-logo{width:72px;height:72px;margin:0 auto 16px;border-radius:18px;background:#fff;padding:6px;object-fit:contain;box-shadow:0 14px 40px rgba(0,102,255,.35);}
@@ -39,6 +39,7 @@ const criticalBootCss = `
   .sc-static-boot-loader{width:38px;height:38px;margin:0 auto 18px;border-radius:999px;border:3px solid rgba(248,250,252,.22);border-top-color:#4da3ff;animation:sc-spin .8s linear infinite;}
   .sc-static-boot-action{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:#0066ff;color:#fff;padding:12px 18px;font-weight:800;box-shadow:0 10px 30px rgba(0,102,255,.35);}
   @keyframes sc-spin{to{transform:rotate(360deg)}}
+  @keyframes sc-boot-auto-hide{to{display:none;opacity:0;visibility:hidden;pointer-events:none;}}
   @media (prefers-reduced-motion:reduce){#sc-static-boot{transition:none}.sc-static-boot-loader{animation:none}}
   .sc-noscript{max-width:30rem;margin:18vh auto;padding:1.5rem;text-align:center;border:1px solid rgba(148,163,184,.25);border-radius:1rem;background:rgba(15,23,42,.72);box-shadow:0 20px 60px rgba(0,0,0,.35);}
   .sc-noscript a{display:inline-flex;margin-top:1rem;padding:.65rem 1rem;border-radius:999px;background:#0066ff;color:#fff;font-weight:700;}
@@ -90,7 +91,7 @@ const bootRecoveryScript = `
   }
   function watchReady(){
     try{
-      if(appLooksVisible() && Date.now()-started>12000){markReady();return;}
+      if(appLooksVisible()){markReady();return;}
       if(Date.now()-started>12000){markReady();return;}
       setTimeout(watchReady,180);
     }catch(e){}
