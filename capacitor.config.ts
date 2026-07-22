@@ -7,6 +7,11 @@ const config: CapacitorConfig = {
   server: {
     iosScheme: 'https'
   },
+  plugins: {
+    Keyboard: {
+      resize: 'none'
+    }
+  },
   ios: {
     backgroundColor: '#ffffff',
     contentInset: 'always',
