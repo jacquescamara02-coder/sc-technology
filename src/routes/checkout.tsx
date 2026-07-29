@@ -85,6 +85,7 @@ function CheckoutPage() {
   }
 
   const setField = (k: keyof FormState, v: string) => {
+    console.log("SETFIELD CALLED", k, v);
     setForm((f) => ({ ...f, [k]: v }));
     if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }));
   };
