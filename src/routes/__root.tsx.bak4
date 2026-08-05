@@ -98,7 +98,6 @@ const bootRecoveryScript = `
     }catch(e){}
   }
   function recover(){
-    if(readyMarked) return;
     setTimeout(function(){
       try{
         if(!document.body || hasVisibleApp()) return;
@@ -334,7 +333,7 @@ function RootComponent() {
         </main>
         <Footer />
         <BottomNav />
-        {/* <FloatingWhatsApp /> temporairement désactivé pour test */}
+        <FloatingWhatsApp />
       </div>
     </ErrorBoundary>
     </QueryClientProvider>

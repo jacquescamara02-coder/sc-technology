@@ -48,7 +48,6 @@ const STEPS = [
 function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCart((s) => s.items);
-  console.log("RENDER CheckoutPage", Date.now(), "items:", items.length);
   const subtotal = items.reduce((a, i) => a + i.qty * i.product.price, 0);
   const total = subtotal;
 
@@ -76,7 +75,7 @@ function CheckoutPage() {
         <p className="text-sm text-muted-foreground">Ajoutez des produits pour passer commande.</p>
         <Link
           to="/"
-          className="mt-3 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground "
+          className="mt-3 inline-flex rounded-full bg-[image:var(--gradient-primary)] px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
           Continuer mes achats
         </Link>
@@ -85,7 +84,6 @@ function CheckoutPage() {
   }
 
   const setField = (k: keyof FormState, v: string) => {
-    console.log("SETFIELD CALLED", k, v);
     setForm((f) => ({ ...f, [k]: v }));
     if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }));
   };
@@ -135,7 +133,7 @@ function CheckoutPage() {
                 <div
                   className={`grid h-9 w-9 place-items-center rounded-full border-2 ${
                     active
-                      ? "border-primary bg-primary text-primary-foreground "
+                      ? "border-primary bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]"
                       : "border-border bg-card text-muted-foreground"
                   }`}
                 >
@@ -265,7 +263,7 @@ function CheckoutPage() {
 
           <button
             type="submit"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground  transition active:scale-[0.98]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[image:var(--gradient-primary)] text-sm font-bold text-primary-foreground shadow-[var(--shadow-glow)] transition active:scale-[0.98]"
           >
             Continuer vers le paiement <ChevronRight className="h-4 w-4" />
           </button>
