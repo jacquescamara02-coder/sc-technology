@@ -7,7 +7,8 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://sc-technologie.shop',
     cleartext: false,
-    iosScheme: 'https'
+    iosScheme: 'https',
+    allowNavigation: ['sc-technologie.shop', '*.sc-technologie.shop']
   },
   plugins: {
     Keyboard: {
