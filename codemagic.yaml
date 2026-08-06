@@ -98,6 +98,28 @@ workflows:
             PROVISIONING_PROFILE_SPECIFIER="SC Technologie Distribution" \
             CODE_SIGN_IDENTITY="Apple Distribution: Jacques Camara (3QSRLS3CV4)" \
             archive
+      - name: Test iPad Simulator
+        script: |
+          set -e
+          xcodebuild -project ios/App/App.xcodeproj \
+            -scheme App \
+            -destination 'platform=iOS Simulator,name=iPad Air 11-inch (M3)' \
+            -derivedDataPath build_sim \
+            build
+          SIM_ID=$(xcrun simctl list devices | grep "iPad Air 11-inch (M3)" | grep -oE '[0-9A-F-]{36}' | head -1)
+          xcrun simctl boot "$SIM_ID" || true
+          sleep 5
+          APP_PATH=$(find build_sim -name "*.app" -path "*iphonesimulator*" | head -1)
+          xcrun simctl install "$SIM_ID" "$APP_PATH"
+          BUNDLE_ID=$(defaults read "$APP_PATH/Info" CFBundleIdentifier)
+          xcrun simctl launch "$SIM_ID" "$BUNDLE_ID"
+          sleep 5
+          mkdir -p ios_ipad_test
+          xcrun simctl io "$SIM_ID" screenshot ios_ipad_test/ipad_launch_screenshot.png
+          echo "DEBUG: Screenshot iPad capture avec succes"
+        artifacts:
+          - ios_ipad_test/*.png
+
       - name: Export and Upload IPA
         script: |
           xcodebuild -exportArchive \
