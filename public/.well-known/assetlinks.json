@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.sctechnology.app",
+    "sha256_cert_fingerprints": ["A9:C3:1C:5E:91:E1:4C:2E:37:2D:45:99:B8:22:7D:52:A2:51:F4:39:D7:4B:D5:11:60:A3:9F:C8:19:F6:88:95"]
+  }
+}]
