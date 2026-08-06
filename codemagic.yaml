@@ -117,9 +117,6 @@ workflows:
           mkdir -p ios_ipad_test
           xcrun simctl io "$SIM_ID" screenshot ios_ipad_test/ipad_launch_screenshot.png
           echo "DEBUG: Screenshot iPad capture avec succes"
-        artifacts:
-          - ios_ipad_test/*.png
-
       - name: Export and Upload IPA
         script: |
           xcodebuild -exportArchive \
@@ -142,3 +139,4 @@ workflows:
     artifacts:
       - build/App.xcarchive
       - build/App.ipa
+      - ios_ipad_test/*.png
