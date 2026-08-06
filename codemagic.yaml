@@ -114,8 +114,8 @@ workflows:
           BUNDLE_ID="com.sctechnologie.app"
           xcrun simctl launch "$SIM_ID" "$BUNDLE_ID"
           sleep 5
-          mkdir -p ios_ipad_test
-          xcrun simctl io "$SIM_ID" screenshot ios_ipad_test/ipad_launch_screenshot.png
+          mkdir -p "$CM_BUILD_DIR/ios_ipad_test"
+          xcrun simctl io "$SIM_ID" screenshot "$CM_BUILD_DIR/ios_ipad_test/ipad_launch_screenshot.png"
           echo "DEBUG: Screenshot iPad capture avec succes"
       - name: Export and Upload IPA
         script: |
