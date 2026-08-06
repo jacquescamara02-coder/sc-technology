@@ -16,7 +16,7 @@ const config: CapacitorConfig = {
     }
   },
   ios: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#16213f',
     contentInset: 'always',
     limitsNavigationsToAppBoundDomains: false
   }
