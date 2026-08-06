@@ -111,7 +111,7 @@ workflows:
           sleep 5
           APP_PATH=$(find build_sim -name "*.app" -path "*iphonesimulator*" | head -1)
           xcrun simctl install "$SIM_ID" "$APP_PATH"
-          BUNDLE_ID=$(defaults read "$APP_PATH/Info" CFBundleIdentifier)
+          BUNDLE_ID="com.sctechnologie.app"
           xcrun simctl launch "$SIM_ID" "$BUNDLE_ID"
           sleep 5
           mkdir -p ios_ipad_test
