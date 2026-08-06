@@ -115,8 +115,11 @@ workflows:
           xcrun simctl launch "$SIM_ID" "$BUNDLE_ID"
           sleep 5
           mkdir -p "$CM_BUILD_DIR/ios_ipad_test"
-          xcrun simctl io "$SIM_ID" screenshot "$CM_BUILD_DIR/ios_ipad_test/ipad_launch_screenshot.png"
-          echo "DEBUG: Screenshot iPad capture avec succes"
+          xcrun simctl io "$SIM_ID" screenshot "$CM_BUILD_DIR/ios_ipad_test/ipad_launch_screenshot_5s.png"
+          echo "DEBUG: Screenshot iPad 5s capture avec succes"
+          sleep 15
+          xcrun simctl io "$SIM_ID" screenshot "$CM_BUILD_DIR/ios_ipad_test/ipad_launch_screenshot_20s.png"
+          echo "DEBUG: Screenshot iPad 20s capture avec succes"
       - name: Export and Upload IPA
         script: |
           xcodebuild -exportArchive \
