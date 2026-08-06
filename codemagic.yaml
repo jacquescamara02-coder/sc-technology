@@ -108,7 +108,7 @@ workflows:
             build
           SIM_ID=$(xcrun simctl list devices | grep "iPad Air 11-inch (M3)" | grep -oE '[0-9A-F-]{36}' | head -1)
           xcrun simctl boot "$SIM_ID" || true
-xcrun simctl status_bar "$SIM_ID" override --time "9:41" --batteryState charged --batteryLevel 100 --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3
+          xcrun simctl status_bar "$SIM_ID" override --time "9:41" --batteryState charged --batteryLevel 100 --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3
           sleep 5
           APP_PATH=$(find build_sim -name "*.app" -path "*iphonesimulator*" | head -1)
           xcrun simctl install "$SIM_ID" "$APP_PATH"
