@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 export function Footer() {
 const [isNative, setIsNative] = useState(false);
 useEffect(() => {
-setIsNative(Capacitor.isNativePlatform());
+setIsNative(typeof window !== "undefined" && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:" || !!(window as any).Capacitor));
  }, []);
   return (
     <footer className="relative mx-auto mt-8 max-w-screen-md px-4 pb-8 pt-6 text-center text-xs text-muted-foreground">
