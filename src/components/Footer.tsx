@@ -19,7 +19,7 @@ if (typeof window !== "undefined") { (window as any).__debugInfo = "protocol=" +
         </div>
         <div className="mt-1 text-base font-bold text-foreground">SC TECHNOLOGIE</div>
         <p className="mt-1 text-[11px] text-muted-foreground">
-          Téléchargez l'application mobile officielle
+          Téléchargez l'application officielle {typeof window !== "undefined" ? ((window as any).__debugInfo || "NO_DEBUG") : "SSR"}
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
           <StoreBadge store="google" />
