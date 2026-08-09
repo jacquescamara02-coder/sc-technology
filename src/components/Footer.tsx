@@ -1,11 +1,16 @@
 import { Phone, MessageCircle } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
+import { useState, useEffect } from "react";
 
 export function Footer() {
+const [isNative, setIsNative] = useState(false);
+useEffect(() => {
+setIsNative(Capacitor.isNativePlatform());
+ }, []);
   return (
     <footer className="relative mx-auto mt-8 max-w-screen-md px-4 pb-8 pt-6 text-center text-xs text-muted-foreground">
       {/* Download the app */}
-{!Capacitor.isNativePlatform() && (
+{!isNative && (
       <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
         <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">
           Maintenant disponible
