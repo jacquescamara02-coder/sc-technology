@@ -10,7 +10,7 @@ if (typeof window !== "undefined") { (window as any).__debugInfo = "protocol=" +
  }, []);
   return (
     <footer className="relative mx-auto mt-8 max-w-screen-md px-4 pb-8 pt-6 text-center text-xs text-muted-foreground">
-<div style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,background:"red",color:"white",fontSize:"10px",padding:"4px",wordBreak:"break-all"}}>{(window as any).__debugInfo || "debugInfo not set yet"}</div>
+<div style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,background:"red",color:"white",fontSize:"10px",padding:"4px",wordBreak:"break-all"}}>{typeof window !== "undefined" ? ((window as any).__debugInfo || "debugInfo not set yet") : "SSR"}</div>
       {/* Download the app */}
 {!isNative && (
       <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
