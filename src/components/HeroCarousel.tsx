@@ -19,8 +19,10 @@ const instantSlides: HeroSlide[] = [
 export function HeroCarousel() {
   const settings = useAdminData((s) => s.settings);
   const navigate = useNavigate();
+  const isNative = typeof window !== "undefined" && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:" || !!(window as any).Capacitor);
   const remoteSlides = (settings.heroSlides ?? []).filter((s) => s.active);
-  const slides = remoteSlides.length > 0 ? remoteSlides : instantSlides;
+  const baseSlides = remoteSlides.length > 0 ? remoteSlides : instantSlides;
+  const slides = isNative ? baseSlides.filter(s => s.badge !== "Maintenant disponible") : baseSlides;
   const [i, setI] = useState(0);
 
   useEffect(() => {
