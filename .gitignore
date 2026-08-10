@@ -32,3 +32,8 @@ dist-ssr
 *.sw?
 mobile-dist/
 mobile-dist/
+*.backup
+*.bak
+*.bak2
+*.bak5
+fix_ipad_script.py
