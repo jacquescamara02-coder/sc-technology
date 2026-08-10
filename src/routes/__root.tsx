@@ -97,7 +97,7 @@ const bootRecoveryScript = `
       setTimeout(watchReady,180);
     }catch(e){}
   }
-  function recover(){
+  function recover(){ if(document.activeElement && (document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="TEXTAREA")) return;
     if(readyMarked) return;
     setTimeout(function(){
       try{

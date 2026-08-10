@@ -5,7 +5,10 @@ const config: CapacitorConfig = {
   appName: 'SC Technologie',
   webDir: 'mobile-dist/client/client',
   server: {
-    iosScheme: 'https'
+    url: 'https://sc-technologie.shop',
+    cleartext: false,
+    iosScheme: 'https',
+    allowNavigation: ['sc-technologie.shop', '*.sc-technologie.shop']
   },
   plugins: {
     Keyboard: {

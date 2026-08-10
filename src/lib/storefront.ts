@@ -20,9 +20,14 @@ function gradientFor(seed: string): string {
 
 export function adaptProduct(p: AdminProduct): Product {
   const firstImg = p.images[0];
+  const optimizeImg = (url: string) =>
+    url.includes("/storage/v1/object/public/")
+      ? url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/") + "?width=800&quality=70&resize=contain"
+      : url;
+
   const image =
     firstImg && (firstImg.startsWith("data:") || firstImg.startsWith("http"))
-      ? `url(${firstImg})`
+      ? `url(${optimizeImg(firstImg)})`
       : firstImg && firstImg.startsWith("linear-gradient")
         ? firstImg
         : gradientFor(p.id);
