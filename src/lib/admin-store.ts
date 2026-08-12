@@ -419,13 +419,19 @@ export const useAdminData = create<AdminDataState>()(
     {
       name: "techshop-admin-data",
       storage: createJSONStorage(() => safeStorage()),
-      version: 5,
+      version: 6,
       // Don't persist heavy image payloads to localStorage — they easily
       // blow past iPad Safari's quota. Supabase is the source of truth and
       // rehydrates products/categories/settings on app load.
-      partialize: (state) => ({
-        facebookPosts: state.facebookPosts,
-      }) as unknown as AdminDataState,
+partialize: (state) => ({
+facebookPosts: state.facebookPosts,
+categories: state.categories,
+settings: state.settings,
+products: state.products.map(({ images, ...rest }) => ({
+...rest,
+images: [] as string[],
+})),
+}) as unknown as AdminDataState,
       migrate: (persisted: unknown, version: number) => {
         const data = (persisted ?? {}) as Partial<AdminDataState>;
         if (version < 2) {
