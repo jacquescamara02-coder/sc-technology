@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Check, Truck, CreditCard, ClipboardCheck } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatGNF } from "@/lib/data";
@@ -307,7 +307,7 @@ function inputCls(error?: string) {
   }`;
 }
 
-const SummaryContent = React.memo(function SummaryContent({
+const SummaryContent = memo(function SummaryContent({
   items,
   subtotal,
   total,
