@@ -307,7 +307,7 @@ function inputCls(error?: string) {
   }`;
 }
 
-function SummaryContent({
+const SummaryContent = React.memo(function SummaryContent({
   items,
   subtotal,
   total,
@@ -344,7 +344,7 @@ function SummaryContent({
 
     </div>
   );
-}
+});
 
 function Row({ label, value, muted = false }: { label: string; value: string; muted?: boolean }) {
   return (
