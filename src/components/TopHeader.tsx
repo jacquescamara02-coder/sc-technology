@@ -8,7 +8,7 @@ export function TopHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-screen-md items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-screen-md items-center gap-3 px-4 py-3"><Link to="/test-input" style={{color:"red",fontSize:10}}>TEST</Link>
         <Link to="/" className="shrink-0">
           <Logo />
         </Link>
