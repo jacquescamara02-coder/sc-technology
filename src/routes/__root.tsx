@@ -333,7 +333,7 @@ function RootComponent() {
           <Outlet />
         </main>
         <Footer />
-        <BottomNav />
+        {pathname !== '/checkout' && <BottomNav />}
         {/* <FloatingWhatsApp /> temporairement désactivé pour test */}
       </div>
     </ErrorBoundary>
