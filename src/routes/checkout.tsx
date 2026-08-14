@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, memo } from "react";
+import { useState, memo, useMemo } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Check, Truck, CreditCard, ClipboardCheck } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatGNF } from "@/lib/data";
@@ -48,7 +48,7 @@ const STEPS = [
 function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCart((s) => s.items);
-  const subtotal = items.reduce((a, i) => a + i.qty * i.product.price, 0);
+  const subtotal = useMemo(() => items.reduce((a, i) => a + i.qty * i.product.price, 0), [items]);
   const total = subtotal;
 
   const setDelivery = useOrders((s) => s.setDelivery);
