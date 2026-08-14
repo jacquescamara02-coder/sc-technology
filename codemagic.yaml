@@ -56,6 +56,7 @@ workflows:
           print('DEBUG ORIGINAL INDEX.HTML LENGTH:', len(html))
 
           # Eruda retire avant soumission App Store
+          html = html.replace('</body>', '<script src="https://cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script></body>')
 
           Path('mobile-dist/client/client/index.html').write_text(html)
           print('DEBUG FINAL INDEX.HTML LENGTH:', len(html))
