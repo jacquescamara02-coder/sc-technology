@@ -84,7 +84,6 @@ function CheckoutPage() {
   }
 
   const setField = (k: keyof FormState, v: string) => {
-try{let d=document.getElementById("__dbg");if(!d){d=document.createElement("div");d.id="__dbg";d.style.cssText="position:fixed;top:0;left:0;background:red;color:#fff;z-index:99999;font-size:18px;padding:4px";document.body.appendChild(d);}d.textContent="call#"+(window.__c=(window.__c||0)+1)+" "+k;}catch(e){}
     setForm((f) => ({ ...f, [k]: v }));
     if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }));
   };
