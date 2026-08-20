@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'mobile-dist/client/client',
   plugins: {
     Keyboard: {
-      resize: 'body'
+      resize: 'native'
     }
   },
   ios: {
