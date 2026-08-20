@@ -119,7 +119,7 @@ function CheckoutPage() {
         >
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold tracking-tight text-foreground">Commander</h1>
+        <h1 className="text-xl font-bold tracking-tight text-foreground">TESTBUILD999</h1>
       </div>
 
       {/* Progress bar */}
